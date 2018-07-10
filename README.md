@@ -5,7 +5,7 @@
 ## Download & Installation
 
 ### Manually
-- Download https://github.com/changeME
+- Download https://github.com/Artnod-FiveM-Mods/esx_races/archive/master.zip
 - Put it in the `[esx]` directory
 
 ## Installation
@@ -18,12 +18,10 @@ start esx_races
 
 # Legal
 ### License
-esx_races - street race
+Artnod-FiveM-Mods/esx_races  
 
-Copyright (C) 2018-2018
+This program is licensed under the GNU General Public License v3.0  
 
-This program Is free software: you can redistribute it And/Or modify it under the terms Of the GNU General Public License As published by the Free Software Foundation, either version 3 Of the License, Or (at your option) any later version.
+Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license.  
 
-This program Is distributed In the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty Of MERCHANTABILITY Or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License For more details.
-
-You should have received a copy Of the GNU General Public License along with this program. If Not, see http://www.gnu.org/licenses/.
+Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
