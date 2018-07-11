@@ -1,4 +1,7 @@
 # esx_races
+Simple singleplayer races with ranking.  
+Multiplayers races in dev.
+
 ## Requirements
  - [esx_policejob](https://github.com/ESX-Org/esx_policejob)
 
