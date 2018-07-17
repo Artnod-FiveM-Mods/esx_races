@@ -1,6 +1,6 @@
 # esx_races
 Singleplayer street races with ranking.  
-Multiplayers street races in dev.  
+Multiplayers street races with ranking.  
 
 [SinglePlayer youtube sample](https://gaming.youtube.com/watch?v=8cwoR1DLpC8)  
 [MultiPlayer youtube sample](https://gaming.youtube.com/watch?v=MWpTtpQ7X-o)  
