@@ -2,8 +2,7 @@
 [![Discord](https://img.shields.io/discord/436197783331012629.svg)](https://discord.gg/TPPMg3V)  
 
 # esx_races
-Singleplayer street races with ranking.
-Multiplayers street races with ranking.
+This is a Grand Theft Auto V mod that implements Singleplayer street races and Multiplayer street races, with ranking.
 
 
 
