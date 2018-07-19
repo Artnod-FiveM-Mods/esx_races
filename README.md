@@ -2,6 +2,7 @@
 [![Discord](https://img.shields.io/discord/436197783331012629.svg)](https://discord.gg/TPPMg3V)  
 
 # esx_races
+This is a Grand Theft Auto V mod that implements Singleplayer street races and Multiplayer street races, with ranking.
 Mod for CitizenFx server (FiveM server).  
 
 Singleplayer street races with ranking. 
