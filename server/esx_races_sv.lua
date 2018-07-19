@@ -61,7 +61,16 @@ function timeToString(mytime)
   mytimeString = minute .. '\'' .. seconde .. '\'\'' .. milli
   return mytimeString
 end
-
+function getCurrentRace(fxId)
+  local currentRace = {}
+  for i=1, #createdMultiRace, 1 do
+    if createdMultiRace[i].fxId == fxId then
+      currentRace = createdMultiRace[i]
+      break
+    end
+  end
+  return currentRace
+end
 
 -- collect solo key
 function collectSoloKey(source)
@@ -234,7 +243,7 @@ AddEventHandler('esx_races:getDailyRecord', function(raceid)
         end
       end    
     end
-    TriggerClientEvent('esx_races:recordsListMenu', _source, elements, title)
+    TriggerClientEvent('esx_races:recordsListMenu', _source, elements, title, raceid)
   end
 end)
 RegisterServerEvent('esx_races:getMonthlyRecord')
@@ -266,7 +275,7 @@ AddEventHandler('esx_races:getMonthlyRecord', function(raceid)
         end
       end    
     end
-    TriggerClientEvent('esx_races:recordsListMenu', _source, elements, title)
+    TriggerClientEvent('esx_races:recordsListMenu', _source, elements, title, raceid)
   end
 end)
 -- save solo race
@@ -338,41 +347,58 @@ AddEventHandler('esx_races:stopCollectMultiKey', function()
   end
 end)
 -- return Multi Home Menu
-function getRegisterLine(source, zoneName)
+function getRegisterLine(source, zoneName, isRegistered_Solo)
   local xPlayer = ESX.GetPlayerFromId(source)
+  
+  -- no pulti_key
   local multikey = xPlayer.getInventoryItem('multi_key').count
-  local openedRace = 0
-  for i=1, #createdMultiRace, 1 do
-    if createdMultiRace[i].zone == zoneName and createdMultiRace[i].registerOpen then
-      openedRace = openedRace + 1
-    end
+  if multikey == 0 then
+    return {success = false, retour = {}}
   end
-  local alreadyRegistered = false
-  local PlayerRegistration = {}
+  
+  -- already registered
+  local alreadyRegistered = isRegistered_Solo
   for i=1, #playerRegisteredMultiRace , 1 do
     if playerRegisteredMultiRace[i].identifier == xPlayer.identifier then
       alreadyRegistered = true
-      PlayerRegistration = playerRegisteredMultiRace[i]
       break
     end
   end
-  if multikey > 0 and openedRace > 0 and not alreadyRegistered then
-    local tmpretour = {label = _U('registration'), value = 'registration', zone = zoneName}
-    return {success = true, retour = tmpretour}
-  end
   if alreadyRegistered then
-    local createdRace = {}
-    for x=1, #createdMultiRace, 1 do
-      if createdMultiRace[x].fxId == PlayerRegistration.race then
-        createdRace = createdMultiRace[x]
-        break
+    return {success = false, retour = {}}
+  end
+  
+  -- no opened race in zone
+  local openedRace = false
+  for i=1, #createdMultiRace, 1 do
+    if createdMultiRace[i].zone == zoneName and createdMultiRace[i].registerOpen then
+      openedRace = true
+      break
+    end
+  end
+  if openedRace then
+    return {success = false, retour = {}}
+  end
+  
+  -- deja inscrit
+  for i=1, #playerRegisteredMultiRace , 1 do
+    if playerRegisteredMultiRace[i].identifier == xPlayer.identifier then
+      local tmpRace = getCurrentRace(playerRegisteredMultiRace[i].race)
+      if tmpRace.zone == zoneName then
+        local tmpretour = {label = _U('show_registration'), value = 'show_registration', createdrace = tmpRace.fxId}
+        return {success = true, retour = tmpretour}
       end
     end
-    if createdRace.zone == zoneName and not PlayerRegistration.isStart then
-      local tmpretour = {label = _U('show_registration'), value = 'show_registration', createdrace = PlayerRegistration.race}
+  end
+  
+  -- inscription dispo
+  for i=1, #createdMultiRace , 1 do
+    if createdMultiRace[i].zone == zoneName and createdMultiRace[i].registerOpen then
+      local tmpretour = {label = _U('registration'), value = 'registration', zone = zoneName}
       return {success = true, retour = tmpretour}
     end
   end
+
   return {success = false, retour = {}}
 end
 function getCreateLine(source, zoneName)
@@ -396,11 +422,11 @@ function getCreateLine(source, zoneName)
   end
   return {success = false, retour = {}}
 end
-function getHomeLine(source, zoneName)
+function getHomeLine(source, zoneName, isRegistered_Solo)
   local title = _U('multi_home_title')
   local elements = {}
   table.insert(elements, {label = _U('ended_races'), value = 'ranking', zone = zoneName})
-  local registerLine = getRegisterLine(source, zoneName)
+  local registerLine = getRegisterLine(source, zoneName, isRegistered_Solo)
   if registerLine.success then
     table.insert(elements, registerLine.retour)
   end
@@ -411,8 +437,8 @@ function getHomeLine(source, zoneName)
   TriggerClientEvent('esx_races:openMultiHomeMenu', source, elements, title)
 end
 RegisterServerEvent('esx_races:getMultiHomeMenu')
-AddEventHandler('esx_races:getMultiHomeMenu', function(zoneName)
-  getHomeLine(source, zoneName)
+AddEventHandler('esx_races:getMultiHomeMenu', function(zoneName, isRegistered_Solo)
+  getHomeLine(source, zoneName, isRegistered_Solo)
 end)
 -- return multi ranking
 RegisterServerEvent('esx_races:getMultiRankingList')
@@ -475,13 +501,14 @@ AddEventHandler('esx_races:getMultiOwnRaceRecords', function(race, zone)
     local req         = "SELECT nb_pers FROM multi_race WHERE id = " .. response[i].multi_race_id
     local nbPers      = MySQL.Sync.fetchScalar(req)
     local record      = timeToString(response[i].record)
-    local average     = timeToString(math.floor(response[i].record/response[i].nb_laps))
+    local avr         = math.floor(response[i].record/response[i].nb_laps)
+    local average     = timeToString(avr)
     local racer       = compressString(response[i].user)
     local record_date = os.date('%Y-%m-%d', math.floor(response[i].record_date/1000))
     local record_time = os.date('%H:%M:%S', math.floor(response[i].record_date/1000))
     local label       = _U('multi_rank_own_race', '', response[i].nb_laps, nbPers, record, Config.VehicleClass[response[i].vehicle+1])
     local notif       = {record, average, racer, record_date, record_time}
-    table.insert(elements, {label = label, value = i, notif = notif})
+    table.insert(elements, {label = label, value = i, notif = notif, avr = avr})
   end
   local tmpTable = {}
   for i=1, #elements, 1 do
@@ -490,7 +517,7 @@ AddEventHandler('esx_races:getMultiOwnRaceRecords', function(race, zone)
     else
       local added = false
       for x=1, #tmpTable, 1 do
-        if elements[i].average < tmpTable[x].average then
+        if elements[i].avr < tmpTable[x].avr then
           table.insert(tmpTable, y, elements[i])
           added = true
           break
@@ -738,7 +765,7 @@ AddEventHandler('esx_races:getRegisterMultiList', function(zoneName)
       -- recuperer nombre de participant
       local nbPers = 0
       for y=1, #playerRegisteredMultiRace, 1 do
-        if playerRegisteredMultiRace[y].race == i then
+        if playerRegisteredMultiRace[y].race == createdMultiRace[i].fxId then
           nbPers = nbPers + 1
         end
       end
@@ -751,52 +778,58 @@ AddEventHandler('esx_races:getRegisterMultiList', function(zoneName)
 end)
 RegisterServerEvent('esx_races:tryToRegisterMulti')
 AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
-  local currentRace = {}
-  for i=1, #createdMultiRace, 1 do
-    if createdMultiRace[i].fxId == fxId then
-      currentRace = createdMultiRace[i]
-      break
-    end
-  end
+  local currentRace = getCurrentRace(fxId)
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
+  local success = true
+  
+  -- multi_key
   local multikey = xPlayer.getInventoryItem('multi_key').count
-  local newmultikey = multikey
-  local nbPers = 0
+  if multikey < 1 then
+    TriggerClientEvent('esx:showNotification', _source, _U('no_multi_key'))
+    success = false
+  end
+  
+  -- cops
   local copsConnected = nbCops()
+  if copsConnected < Config.RequiredCopsSolo and success then
+    TriggerClientEvent('esx:showNotification', _source, _U('act_imp_police', copsConnected, Config.RequiredCopsSolo))
+    success = false
+  end
+  
+  -- nombre de participants
+  local nbPers = 0
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race == fxId then
       nbPers = nbPers + 1
     end
   end
+  if nbPers >= currentRace.nbPers  and success then
+    TriggerClientEvent('esx:showNotification', _source, _U('multi_register_full'))
+    success = false
+  end
+  
+  -- deja enregistrer
+  local alreadyregister = isRegistered
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].identifier == xPlayer.identifier then
-      isRegistered = true
+      alreadyregister = true
+      break
     end
   end
-  if nbPers >= currentRace.nbPers then
-    TriggerClientEvent('esx:showNotification', _source, _U('multi_register_full'))
-  elseif isRegistered then
+  if alreadyregister and success then
     TriggerClientEvent('esx:showNotification', _source, _U('already_register'))
-  elseif copsConnected < Config.RequiredCopsSolo then
-    TriggerClientEvent('esx:showNotification', _source, _U('act_imp_police', copsConnected, Config.RequiredCopsSolo))
-  elseif multikey < 1 then
-    TriggerClientEvent('esx:showNotification', _source, _U('no_multi_key'))
-  else
+    success = false
+  end
+  
+  if success then
     xPlayer.removeInventoryItem('multi_key', 1)
     TriggerClientEvent('esx:showNotification', _source, _U('multi_register_ok'))
-    newmultikey = newmultikey - 1
-    local newRacer = {
-      identifier = xPlayer.identifier, 
-      race = fxId, 
-      isReady = false, 
-      isStart = false, 
-      isEnded = false, 
-      checkPoint = 0
-    }
+    local newRacer = {identifier = xPlayer.identifier, race = fxId, isReady = false, isStart = false, isEnded = false, checkPoint = 0}
     table.insert(playerRegisteredMultiRace, newRacer)
-   end
-   TriggerClientEvent('esx_races:multiRegisterComplete', _source, newmultikey, currentRace.zone)
+  end
+   
+  TriggerClientEvent('esx_races:multiRegisterComplete', _source, (multikey - 1), currentRace.zone)
 end)
 RegisterServerEvent('esx_races:getRegistrationDetails')
 AddEventHandler('esx_races:getRegistrationDetails', function(fxId)
@@ -994,12 +1027,74 @@ function startRace(fxId)
   end
 end
 -- set Multi race position
+function getCheckpointsList(fxId)
+  print('get Checkpoints List for '.. fxId)
+  local checkPointList = {}
+  for i=1, #playerRegisteredMultiRace, 1 do
+    if playerRegisteredMultiRace[i].race == fxId then
+      if #checkPointList == 0 then
+        table.insert(checkPointList, playerRegisteredMultiRace[i].checkPoint)
+      else
+        local added = false
+        for y=1, #checkPointList, 1 do
+          if playerRegisteredMultiRace[i].checkPoint > checkPointList[y].checkPoint then
+            table.insert(checkPointList, y, playerRegisteredMultiRace[i].checkPoint)
+            added = true
+            break
+          elseif playerRegisteredMultiRace[i].checkPoint == checkPointList[y].checkPoint then
+            added = true
+            break
+          end
+        end
+        if not added then
+          table.insert(checkPointList, playerRegisteredMultiRace[i].checkPoint)
+        end
+      end
+    end
+  end
+  local tmpPrint = ''
+  for i=1, #checkPointList, 1 do
+    tmpPrint = tmpPrint .. checkPointList[i] .. ' - '
+  end
+  print(tmpPrint)
+  return checkPointList
+end
+function getRacerList(fxId, ckpt)
+  print('get Racer List for '.. fxId .. ' and ckpt ' .. ckpt)
+  local racersList = {}
+  for i=1, #playerRegisteredMultiRace, 1 do
+    if playerRegisteredMultiRace[i].race == fxId and playerRegisteredMultiRace[i].checkPoint == ckpt then
+      if #racersList == 0 then
+        table.insert(racersList, playerRegisteredMultiRace[i])
+      else
+        local added = false
+        for y=1, #racersList, 1 do
+          if playerRegisteredMultiRace[i].raceTime < racersList[y].raceTime then
+            table.insert(racersList, y, playerRegisteredMultiRace[i])
+            added = true
+            break
+          end
+        end
+        if not added then
+          table.insert(racersList, playerRegisteredMultiRace[i])
+        end
+      end
+    end
+  end
+  local tmpPrint = ''
+  for i=1, #racersList, 1 do
+    tmpPrint = tmpPrint .. racersList[i].raceTime .. ' - '
+  end
+  print(tmpPrint)
+  return racersList
+end
 RegisterServerEvent('esx_races:setMultiRacePosition')
 AddEventHandler('esx_races:setMultiRacePosition', function(checkPoint, raceTime, fxId)
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
+  local currentRace = getCurrentRace(fxId)
   
-  -- maj liste
+  -- maj perso
   for i=1, #playerRegisteredMultiRace ,1 do
     if playerRegisteredMultiRace[i].identifier == xPlayer.identifier and playerRegisteredMultiRace[i].race == fxId then
       playerRegisteredMultiRace[i].checkPoint = checkPoint
@@ -1007,42 +1102,36 @@ AddEventHandler('esx_races:setMultiRacePosition', function(checkPoint, raceTime,
     end
   end
   
-  -- liste par checkpoint puis par raceTime
+  -- liste par checkpoint
   local newList = {}
-  for i=1, #playerRegisteredMultiRace, 1 do
-    if i == 1 then
-      table.insert(newList, playerRegisteredMultiRace[i])
-    else
-      local added = false
+  local checkPointList = getCheckpointsList(fxId)
+  for i=1, #checkPointList, 1 do
+    local racerList = getRacerList(fxId, checkPointList[i])
+    for y=1, #racerList, 1 do
+      table.insert(newList, racerList[y])
+    end
+  end
+  
+  -- ajout des derniers
+  for i=1, #playerRegisteredMultiRace ,1 do
+    if playerRegisteredMultiRace[i].race == fxId then
+      local isListed = false
       for y=1, #newList, 1 do
-        if playerRegisteredMultiRace[i].checkPoint > newList[y].checkPoint then
-          table.insert(newList, y, playerRegisteredMultiRace[i])
-          added = true
-          break
-        elseif playerRegisteredMultiRace[i].checkPoint == newList[y].checkPoint and playerRegisteredMultiRace[i].raceTime > newList[y].raceTime then
-          table.insert(newList, y, playerRegisteredMultiRace[i])
-          added = true
+        if playerRegisteredMultiRace[i].identifier == newList[y].identifier then
+          isListed = true
           break
         end
       end
-      if not added then
+      if not isListed then
         table.insert(newList, playerRegisteredMultiRace[i])
       end
     end
   end
+  
   -- envoie position a tout les participants
   for i=1, #newList, 1 do
     local racer = ESX.GetPlayerFromIdentifier(newList[i].identifier)
-    TriggerClientEvent('esx_races:getMultiRacePosition', racer.source, i, #newList, fxId)
-  end
-  -- maj list
-  for i=1, #playerRegisteredMultiRace ,1 do
-    for y=1, #newList, 1 do
-      if playerRegisteredMultiRace[i].race == newList[y].race and playerRegisteredMultiRace[i].identifier == newList[y].identifier then
-        playerRegisteredMultiRace[i] = newList[y]
-        break
-      end
-    end
+    TriggerClientEvent('esx_races:getMultiRacePosition', racer.source, i, currentRace.nbPers, fxId)
   end
 end)
 -- save multi race

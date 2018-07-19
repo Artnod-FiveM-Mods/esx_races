@@ -304,7 +304,7 @@ Citizen.CreateThread(function()
           if IsPedInAnyVehicle(playerPed, 0) then
             TriggerEvent('esx:showNotification', _U('out_vehicle'))
           else
-            TriggerServerEvent('esx_races:getMultiHomeMenu', currentAction)
+            TriggerServerEvent('esx_races:getMultiHomeMenu', currentAction, solo.isRegistered_Solo)
             currentAction = nil
           end
         elseif currentAction == 'race' then -- solo race
@@ -424,7 +424,7 @@ AddEventHandler('esx_races:recordsListMenu', function(recordsList, recordsTitle,
     end, 
     function(data, menu)
       menu.close()
-      TriggerServerEvent('esx_races:getSoloRaceDetails', data.current.race, solo.isRegistered_Solo, solo.registeredRace_Solo)
+      TriggerServerEvent('esx_races:getSoloRaceDetails', raceid, solo.isRegistered_Solo, solo.registeredRace_Solo)
     end
   )
 end)
