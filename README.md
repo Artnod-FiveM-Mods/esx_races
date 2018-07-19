@@ -2,13 +2,50 @@
 [![Discord](https://img.shields.io/discord/436197783331012629.svg)](https://discord.gg/TPPMg3V)  
 
 # esx_races
-Singleplayer street races with ranking.
+Mod for CitizenFx server (FiveM server).  
+
+Singleplayer street races with ranking. 
+  - Colect item in area
+    - Need cops in the city
+    - Cops can't collect
+  - Register for a race in other area
+    - Need one collected item
+    - Need cops in the city
+  - Run race
+    - Freeze vehicle at startup
+    - Chronometer
+    - Loose race after time out of vehicle
+    - Checkpoints list
+  - Ranking same area than register
+    - Own ranking
+    - Top 6 Daily
+    - Top 6 Monthly
+
+
 Multiplayers street races with ranking.
+  - Colect item in area
+    - Need cops in the city
+    - Cops can't collect
+  - Create a race in other area
+    - Need one collected item
+    - Can edit nb laps and racers
+    - Can open/close registration
+    - Can start/stop/remove race
+  - Register same area than Create
+    - Need one collected item
+    - Need cops in the city
+    - Can select created race with opened registration 
+  - Run race
+    - Freeze vehicle at startup wait all racer
+    - Chronometer
+    - Loose race after time out of vehicle
+    - Checkpoints list
+  - Ranking same area than register
+    - Own ranking
+    - Top 6 Daily
+    - Top 6 Monthly
 
 
-
- 
-https://discord.gg/TPPMg3V  
 
 [SinglePlayer youtube sample](https://gaming.youtube.com/watch?v=8cwoR1DLpC8)  
 [MultiPlayer youtube sample](https://gaming.youtube.com/watch?v=MWpTtpQ7X-o)  
