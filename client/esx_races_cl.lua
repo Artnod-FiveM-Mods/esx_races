@@ -720,7 +720,7 @@ AddEventHandler('esx_races:openMultiRankingRaceMenu', function(elements, title, 
   )
 end)
 RegisterNetEvent('esx_races:recordsListMultiMenu')
-AddEventHandler('esx_races:recordsListMultiMenu', function(recordsList, recordsTitle, zone)
+AddEventHandler('esx_races:recordsListMultiMenu', function(recordsList, recordsTitle, zone, race)
   ESX.UI.Menu.Open(
     'default', GetCurrentResourceName(), 'RecordslistMulti',
     {
@@ -738,7 +738,7 @@ AddEventHandler('esx_races:recordsListMultiMenu', function(recordsList, recordsT
     end, 
     function(data, menu)
       menu.close()
-      TriggerServerEvent('esx_races:getMultiRankingList', zone)
+      TriggerServerEvent('esx_races:getMultiRacesList', race, zone)
     end
   )
 end)
