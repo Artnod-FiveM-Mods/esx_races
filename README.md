@@ -1,6 +1,3 @@
-[![GitHub issues](https://img.shields.io/github/issues/Artnod-FiveM-Mods/esx_races.svg)](https://github.com/Artnod-FiveM-Mods/esx_races/issues) :small_blue_diamond: 
-[![GitHub forks](https://img.shields.io/github/forks/Artnod-FiveM-Mods/esx_races.svg)](https://github.com/Artnod-FiveM-Mods/esx_races/network) :small_blue_diamond: 
-[![GitHub stars](https://img.shields.io/github/stars/Artnod-FiveM-Mods/esx_races.svg)](https://github.com/Artnod-FiveM-Mods/esx_races/stargazers) :small_blue_diamond: 
 [![GitHub license](https://img.shields.io/github/license/Artnod-FiveM-Mods/esx_races.svg)](https://github.com/Artnod-FiveM-Mods/esx_races/blob/master/LICENSE) :small_blue_diamond: 
 [![Discord](https://img.shields.io/discord/436197783331012629.svg)](https://discord.gg/TPPMg3V)  
 
