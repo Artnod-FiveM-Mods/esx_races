@@ -348,11 +348,13 @@ AddEventHandler('esx_races:stopCollectMultiKey', function()
 end)
 -- return Multi Home Menu
 function getRegisterLine(source, zoneName, isRegistered_Solo)
+  print('*** esx_races:getMultiHomeMenu ***')
   local xPlayer = ESX.GetPlayerFromId(source)
   
-  -- no pulti_key
+  -- no multi_key
   local multikey = xPlayer.getInventoryItem('multi_key').count
   if multikey == 0 then
+    print('pas de cle')
     return {success = false, retour = {}}
   end
   
@@ -361,10 +363,17 @@ function getRegisterLine(source, zoneName, isRegistered_Solo)
   for i=1, #playerRegisteredMultiRace , 1 do
     if playerRegisteredMultiRace[i].identifier == xPlayer.identifier then
       alreadyRegistered = true
+      local tmpRace = getCurrentRace(playerRegisteredMultiRace[i].race)
+      if tmpRace.zone == zoneName then
+        print('deja enregiste')
+        local tmpretour = {label = _U('show_registration'), value = 'show_registration', createdrace = tmpRace.fxId}
+        return {success = true, retour = tmpretour}
+      end
       break
     end
   end
   if alreadyRegistered then
+    print('enregiste ailleurs')
     return {success = false, retour = {}}
   end
   
@@ -376,25 +385,16 @@ function getRegisterLine(source, zoneName, isRegistered_Solo)
       break
     end
   end
-  if openedRace then
+  if not openedRace then
+    print('pas de course')
     return {success = false, retour = {}}
-  end
-  
-  -- deja inscrit
-  for i=1, #playerRegisteredMultiRace , 1 do
-    if playerRegisteredMultiRace[i].identifier == xPlayer.identifier then
-      local tmpRace = getCurrentRace(playerRegisteredMultiRace[i].race)
-      if tmpRace.zone == zoneName then
-        local tmpretour = {label = _U('show_registration'), value = 'show_registration', createdrace = tmpRace.fxId}
-        return {success = true, retour = tmpretour}
-      end
-    end
   end
   
   -- inscription dispo
   for i=1, #createdMultiRace , 1 do
     if createdMultiRace[i].zone == zoneName and createdMultiRace[i].registerOpen then
       local tmpretour = {label = _U('registration'), value = 'registration', zone = zoneName}
+      print('inscription dispo')
       return {success = true, retour = tmpretour}
     end
   end
@@ -576,6 +576,7 @@ end)
 -- Create Race - return Manage Race Menu
 RegisterServerEvent('esx_races:getCreateRace')
 AddEventHandler('esx_races:getCreateRace', function(zoneName)
+  print('*** esx_races:getCreateRace ***')
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
   local multikey = xPlayer.getInventoryItem('multi_key').count
@@ -613,6 +614,8 @@ AddEventHandler('esx_races:getCreateRace', function(zoneName)
         date = nil, 
         id = nil
       }
+      
+      print(newRace.fxId ..' - '.. newRace.zone)
       TriggerClientEvent('esx:showNotification', _source, _U('create_in_prog'))
       xPlayer.removeInventoryItem('multi_key', 1)
       table.insert(createdMultiRace, newRace)
@@ -622,34 +625,28 @@ AddEventHandler('esx_races:getCreateRace', function(zoneName)
   end
 end)
 function manageRaceData(source, fxId)
-  local currentRace = {}
-  for i=1, #createdMultiRace, 1 do
-    if createdMultiRace[i].fxId == fxId then
-      currentRace = createdMultiRace[i]
-      break
-    end
-  end
+  local currentRace = getCurrentRace(fxId)
   local title = _U('multi_edit_title', Config.Races[currentRace.race].Name)
   local elements = {}
   table.insert(elements, {label = _U('multi_edit_race', Config.Races[currentRace.race].Name), value = 'id_race', createdrace = fxId})
   table.insert(elements, {label = _U('multi_edit_laps', currentRace.nbLaps), count = currentRace.nbLaps, value = 'nb_laps', createdrace = fxId})
   table.insert(elements, {label = _U('multi_edit_pers', currentRace.nbPers), count = currentRace.nbPers, value = 'nb_pers', createdrace = fxId})
-  if not currentRace.isStart then
-    if currentRace.registerOpen then
+  if currentRace.isStart then
+    if not currentRace.isEnd then
+      table.insert(elements, {label = _U('remove_multi'), value = 'remove_multi', createdrace = fxId})
+    end
+  else
+    if currentRace.registerOpen and currentRace.readyToStart then
       table.insert(elements, {label = _U('multi_edit_registerC'), value = 'register_open', createdrace = fxId})
-    else
+      table.insert(elements, {label = _U('multi_edit_readyC'), value = 'ready_to_start', createdrace = fxId})
+    elseif currentRace.registerOpen and not currentRace.readyToStart then
+      table.insert(elements, {label = _U('multi_edit_registerC'), value = 'register_open', createdrace = fxId})
+    elseif not currentRace.registerOpen and currentRace.readyToStart then
+      table.insert(elements, {label = _U('multi_edit_readyC'), value = 'ready_to_start', createdrace = fxId})
+    elseif not currentRace.registerOpen and not currentRace.readyToStart then
       table.insert(elements, {label = _U('multi_edit_registerO'), value = 'register_open', createdrace = fxId})
+      table.insert(elements, {label = _U('multi_edit_readyO'), value = 'ready_to_start', createdrace = fxId})
     end
-    if not currentRace.registerOpen then
-      if not currentRace.readyToStart then
-        table.insert(elements, {label = _U('multi_edit_readyO'), value = 'ready_to_start', createdrace = fxId})
-      else
-        table.insert(elements, {label = _U('multi_edit_readyC'), value = 'ready_to_start', createdrace = fxId})
-      end
-    end
-  end
-  if currentRace.isStart and not currentRace.isEnd then
-    table.insert(elements, {label = _U('remove_multi'), value = 'remove_multi', createdrace = fxId})
   end
   TriggerClientEvent('esx_races:openManageRaceMenu', source, elements, title, currentRace.zone)
 end
@@ -778,6 +775,7 @@ AddEventHandler('esx_races:getRegisterMultiList', function(zoneName)
 end)
 RegisterServerEvent('esx_races:tryToRegisterMulti')
 AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
+  print('*** esx_races:tryToRegisterMulti ***')
   local currentRace = getCurrentRace(fxId)
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
@@ -788,6 +786,7 @@ AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
   if multikey < 1 then
     TriggerClientEvent('esx:showNotification', _source, _U('no_multi_key'))
     success = false
+    print('no_multi_key')
   end
   
   -- cops
@@ -795,6 +794,7 @@ AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
   if copsConnected < Config.RequiredCopsSolo and success then
     TriggerClientEvent('esx:showNotification', _source, _U('act_imp_police', copsConnected, Config.RequiredCopsSolo))
     success = false
+    print('act_imp_police')
   end
   
   -- nombre de participants
@@ -807,6 +807,7 @@ AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
   if nbPers >= currentRace.nbPers  and success then
     TriggerClientEvent('esx:showNotification', _source, _U('multi_register_full'))
     success = false
+    print('multi_register_full')
   end
   
   -- deja enregistrer
@@ -820,6 +821,7 @@ AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
   if alreadyregister and success then
     TriggerClientEvent('esx:showNotification', _source, _U('already_register'))
     success = false
+    print('already_register')
   end
   
   if success then
@@ -827,6 +829,7 @@ AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
     TriggerClientEvent('esx:showNotification', _source, _U('multi_register_ok'))
     local newRacer = {identifier = xPlayer.identifier, race = fxId, isReady = false, isStart = false, isEnded = false, checkPoint = 0}
     table.insert(playerRegisteredMultiRace, newRacer)
+    print('multi_register_ok - '.. newRacer.identifier ..' - '.. newRacer.race)
   end
    
   TriggerClientEvent('esx_races:multiRegisterComplete', _source, (multikey - 1), currentRace.zone)
