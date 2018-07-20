@@ -544,11 +544,13 @@ AddEventHandler('esx_races:getMultiOwnRacesList', function(zone)
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
   local elements = {}
-  local title = _U('multi_rank_own')
+  local title = _U('multi_rank_own') 
   for i=1, #Config.Races, 1 do
-    local request = "SELECT count(*) FROM record_multi WHERE user = MD5('" .. xPlayer.name .. "') AND race = " .. i
-    local response = MySQL.Sync.fetchScalar(request)
-    table.insert(elements, {label = Config.Races[i].Name, value = 'race', race = i, count = response})
+    if Config.Races[i].MultiRegister == zone then
+      local request = "SELECT count(*) FROM record_multi WHERE user = MD5('" .. xPlayer.name .. "') AND race = " .. i
+      local response = MySQL.Sync.fetchScalar(request)
+      table.insert(elements, {label = Config.Races[i].Name, value = 'race', race = i, count = response})
+    end
   end
   TriggerClientEvent('esx_races:openMultiOwnRacesList', _source, elements, title, zone)
 end)
@@ -776,7 +778,11 @@ RegisterServerEvent('esx_races:changeRaceLaps')
 AddEventHandler('esx_races:changeRaceLaps', function(fxId, newLaps)
   for i=1, #createdMultiRace, 1 do
     if createdMultiRace[i].fxId == fxId then
-      createdMultiRace[i].nbLaps = newLaps
+      if newLaps > 0 and newLaps <= Config.MaxLaps then
+        createdMultiRace[i].nbLaps = newLaps
+      else
+        TriggerClientEvent('esx:showNotification', source, _U('value_between', 1, Config.MaxLaps))
+      end
       break
     end
   end
@@ -786,7 +792,11 @@ RegisterServerEvent('esx_races:changeRacePers')
 AddEventHandler('esx_races:changeRacePers', function(fxId, newPers)
   for i=1, #createdMultiRace, 1 do
     if createdMultiRace[i].fxId == fxId then
-      createdMultiRace[i].nbPers = newPers
+      if newPers > 0 and newPers <= #Config.Races[createdMultiRace[i].race].StartingBlock then
+        createdMultiRace[i].nbPers = newPers
+      else
+        TriggerClientEvent('esx:showNotification', source, _U('value_between', 1, #Config.Races[createdMultiRace[i].race].StartingBlock))
+      end
       break
     end
   end
@@ -1196,24 +1206,27 @@ function closeRace(fxId)
       break
     end
   end
+  -- clear playerRegisteredMultiRace
+  local nbPers = 0
+  local tmpList = {}  
+  for i=1, #playerRegisteredMultiRace, 1 do
+    if playerRegisteredMultiRace[i].race ~= fxId then
+      table.insert(tmpList, playerRegisteredMultiRace[i])
+    else
+      nbPers = nbPers + 1
+    end
+  end
+  playerRegisteredMultiRace = tmpList
   -- update db
   local request = "SELECT count(*) FROM record_multi WHERE multi_race_id = " .. currentRace.id
   local response = MySQL.Sync.fetchScalar(request)
   if response > 0 then
-    request = "UPDATE multi_race SET ended = 1 WHERE id = " .. currentRace.id
+    request = "UPDATE multi_race SET ended = 1, nb_pers = " .. nbPers .. " WHERE id = " .. currentRace.id
     response = MySQL.Sync.fetchScalar(request)
   else
     request = "DELETE FROM multi_race WHERE id = " .. currentRace.id
     response = MySQL.Sync.fetchScalar(request)
   end
-  -- clear playerRegisteredMultiRace
-  local tmpList = {}  
-  for i=1, #playerRegisteredMultiRace, 1 do
-    if playerRegisteredMultiRace[i].race ~= fxId then
-      table.insert(tmpList, playerRegisteredMultiRace[i])
-    end
-  end
-  playerRegisteredMultiRace = tmpList
   -- clear createdMultiRace
   tmpList = {} 
   for i=1, #createdMultiRace, 1 do

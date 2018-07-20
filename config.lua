@@ -47,6 +47,7 @@ Config.TimeToCollectSoloKey = 5 * 1000
 -- multi params
 Config.RequiredCopsMulti = 0
 Config.TimeToCollectMultiKey = 5 * 1000
+Config.MaxLaps = 24
 
 -- race
 Config.Races = {

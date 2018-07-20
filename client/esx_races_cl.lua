@@ -448,12 +448,13 @@ function initRaceToStart()
     FreezeEntityPosition(playerPed, true)
     FreezeEntityPosition(vehicle, true)
     Citizen.Wait(2000)
-    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'04~s~'))
+    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'04~s~', solo.currentCheckPoint, #Config.Races[solo.registeredRace_Solo].Checkpoints))
     Citizen.Wait(1000)
-    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'03~s~'))
+    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'03~s~', solo.currentCheckPoint, #Config.Races[solo.registeredRace_Solo].Checkpoints))
     Citizen.Wait(1000)
-    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'02~s~'))
-    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'01~s~'))
+    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'02~s~', solo.currentCheckPoint, #Config.Races[solo.registeredRace_Solo].Checkpoints))
+    Citizen.Wait(1000)
+    drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'01~s~', solo.currentCheckPoint, #Config.Races[solo.registeredRace_Solo].Checkpoints))
     Citizen.Wait(1000)
     solo.raceIsStarted     = true
     solo.isRegistered_Solo = false  
@@ -522,7 +523,13 @@ Citizen.CreateThread(function()
         if solo.outTimeIsStarted and solo.raceIsStarted then
           drawMissionText(_U('race_in_vehicle', mytimeToString(Config.CheckpointsData.OutTime - (GetGameTimer() - solo.outTimer))))
         elseif not solo.outTimeIsStarted and solo.raceIsStarted then
-          drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, mytimeToString(GetGameTimer() - solo.raceTimer)))
+          drawMissionText(_U('race_chrono', 
+              Config.Races[solo.registeredRace_Solo].Name, 
+              mytimeToString(GetGameTimer() - solo.raceTimer), 
+              solo.currentCheckPoint, 
+              #Config.Races[solo.registeredRace_Solo].Checkpoints
+            )
+          )
         end
         -- out of vehicle process
         if solo.outOfVehicle and not solo.outTimeIsStarted then
@@ -545,7 +552,7 @@ end)
 function endRace()
   local record = GetGameTimer() - solo.raceTimer
   TriggerServerEvent('esx_races:saveRace',record , solo.registeredRace_Solo, GetVehicleClass(GetVehiclePedIsIn(GetPlayerPed(-1), false)))
-  drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, mytimeToString(record)))
+  drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, mytimeToString(record), solo.currentCheckPoint, #Config.Races[solo.registeredRace_Solo].Checkpoints))
   -- clear var
   solo.isRegistered_Solo   = false
   solo.registeredRace_Solo = nil
@@ -827,12 +834,10 @@ AddEventHandler('esx_races:openManageRaceMenu', function(elements, title, zone)
         menu.close()
       end
       if data.current.value == 'register_open' then
-        ESX.ShowNotification(_U('multi_change_ok'))
         TriggerServerEvent('esx_races:changeRaceRegisterOpen', data.current.createdrace)
         menu.close()
       end
       if data.current.value == 'ready_to_start' then
-        ESX.ShowNotification(_U('multi_change_ok'))
         TriggerServerEvent('esx_races:changeRaceReadyToStart', data.current.createdrace)
         menu.close()
       end
@@ -857,7 +862,6 @@ AddEventHandler('esx_races:openManageRaceMenu', function(elements, title, zone)
             if quantity == nil then
               ESX.ShowNotification(_U('multi_change_fail'))
             else
-              ESX.ShowNotification(_U('multi_change_ok'))
               if data.current.value == 'nb_laps' then
                 TriggerServerEvent('esx_races:changeRaceLaps', data.current.createdrace, quantity)
               else
@@ -889,7 +893,6 @@ AddEventHandler('esx_races:openSelectRaceMenu', function(elements, title, create
       elements = elements
     }, 
     function(data, menu)
-      ESX.ShowNotification(_U('multi_change_ok'))
       TriggerServerEvent('esx_races:changeRaceIdRace', data.current.createdrace, data.current.value)
       menu.close()
     end, 
@@ -964,13 +967,13 @@ AddEventHandler('esx_races:startMultiRace', function(createdRace, checkpointsLis
       drawMissionText(_U('ready_to_start'))
       PlaySound(-1, 'RACE_PLACED', 'HUD_AWARDS', 0, 0, 1)
       Citizen.Wait(2000)
-      drawMissionText(_U('race_chrono', raceName, '~r~00\'04~s~'))
+      drawMissionText(_U('multi_race_chrono', raceName, '~r~00\'04~s~', 1, multi[i].nbLaps, multi[i].myPos, multi[i].maxPos))
       Citizen.Wait(1000)
-      drawMissionText(_U('race_chrono', raceName, '~r~00\'03~s~'))
+      drawMissionText(_U('multi_race_chrono', raceName, '~r~00\'03~s~', 1, multi[i].nbLaps, multi[i].myPos, multi[i].maxPos))
       Citizen.Wait(1000)
-      drawMissionText(_U('race_chrono', raceName, '~r~00\'02~s~'))
+      drawMissionText(_U('multi_race_chrono', raceName, '~r~00\'02~s~', 1, multi[i].nbLaps, multi[i].myPos, multi[i].maxPos))
       Citizen.Wait(1000)
-      drawMissionText(_U('race_chrono', raceName, '~r~00\'01~s~'))
+      drawMissionText(_U('multi_race_chrono', raceName, '~r~00\'01~s~', 1, multi[i].nbLaps, multi[i].myPos, multi[i].maxPos))
       Citizen.Wait(1000)
       FreezeEntityPosition(multi[i].vehicle, false)
       multi[i].raceTimer = GetGameTimer()

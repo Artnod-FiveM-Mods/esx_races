@@ -13,7 +13,7 @@ Locales['fr'] = {
   ['no_solo_key']         = 'Vous n\'avez pas de clé ~r~contre-la-montre~s~',
   -- race
   ['ready_to_start']      = 'Atention au ~r~départ~s~',
-  ['race_chrono']         = '~b~%s~s~\rTemps: ~y~%s~s~',
+  ['race_chrono']         = '~b~%s~s~\rTemps: ~y~%s~s~\rCheckpoint: ~y~%s/%s~s~',
   ['race_in_vehicle']     = 'Rentrez dans un ~r~VEHICULE~s~ !!\r~r~%s~s~',
   ['race_loose']          = 'Vous avez ~r~PERDU~s~ !!!',
   ['nice_ride']           = 'Bravo course terminé ~y~%s~s~',
@@ -45,7 +45,6 @@ Locales['fr'] = {
   -- edit
   ['race_already_exist']    = 'Une course de rue a ~r~déjà~s~ été créée',
   ['create_in_prog']        = '~y~Création~s~ effectuée',
-  ['multi_change_ok']       = 'Changement effectué',
   ['multi_change_fail']     = 'Valeur non valide',
   -- race
   ['multi_ready_to_start']  = 'Préparez vous au ~r~départ~s~',
@@ -99,5 +98,6 @@ Locales['fr'] = {
   ['press_start_race']    = 'Appuyez sur ~INPUT_CONTEXT~ pour commencer la ~y~course~y~',
   ['no_record']           = 'Pas de ~r~temps~s~',
   ['remove_register']     = 'Annuler son inscription',
-  ['removed_register']     = 'Inscription ~r~annulée~s~',
+  ['removed_register']    = 'Inscription ~r~annulée~s~',
+  ['value_between']       = 'La valeur doit être comprise\rentre ~r~%s et %s~s~',
 }
