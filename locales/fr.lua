@@ -51,18 +51,18 @@ Locales['fr'] = {
   ['multi_ready_to_start']  = 'Préparez vous au ~r~départ~s~',
   ['multi_wait_to_start']   = 'Attendez tous les participants.',
   ['multi_race_start']      = 'Atention au ~r~départ~s~',
-  ['multi_race_chrono']     = '~b~%s~s~\rTemps: ~y~%s~s~\rPos: ~y~%s/%s~s~',
+  ['multi_race_chrono']     = '~b~%s~s~\rTemps: ~y~%s~s~\rTour: ~y~%s/%s~s~\rPos: ~y~%s/%s~s~',
   -- Menu home
   ['multi_home_title']      = 'Course de rue',
-  ['ended_races']           = 'Courses terminées',
+  ['ended_races']           = 'Classements',
   ['show_registration']     = 'Voir mon inscription',
   ['create_race']           = 'Créer une course de rue',
   ['edit_race']             = 'Modifier la course de rue',
   -- Menu ranking
   ['multi_rank_title']      = 'Classements',
   ['multi_rank_own']        = 'Classement Perso',
-  ['multi_rank_race']       = '%s - %st %sp - %s',
-  ['multi_rank_own_race']   = '%s - %st %sp - %s - %s',
+  ['multi_rank_race']       = '%s Tours - %s Pers - %s',
+  ['multi_rank_own_race']   = '%s - %stours %spers - %s - %s',
   ['multi_rank_multi_title']= '%s - %s tours, %s pers',
   ['multi_rank_multi_race'] = '%s - %s - %s',
   -- Menu register

@@ -31,9 +31,11 @@ Config.Zones = {
   SoloKey       =   {x = 231.430, y = -1360.403, z = 27.651, name = _U('solo_key'),    sprite = 315, color = 2},
   MultiKey      =   {x = 199.859, y = -1382.469, z = 29.613, name = _U('multi_key'),    sprite = 315, color = 1},
   RegisterSolo  =   {
+    SoloListing_two  =   {x = 1662.883, y = -25.811, z = 172.775,  name = _U('solo_listing'),   sprite = 315, color = 2},
     SoloListing_one  =   {x = 256.353, y = -1390.096, z = 29.555,  name = _U('solo_listing'),   sprite = 315, color = 2}
   },
   RegisterMulti =   {
+    MultiListing_two  =   {x = 1662.727, y = -53.788, z = 167.329,  name = _U('multi_listing'),   sprite = 315, color = 1},
     MultiListing_one  =   {x = 216.088, y = -1389.518, z = 29.587,  name = _U('multi_listing'),   sprite = 315, color = 1}
   }
 }
@@ -100,7 +102,35 @@ Config.Races = {
       {x = 229.257, y = -1393.385, z = 29.500},
       {x = 255.139, y = -1400.731, z = 29.537}
     }
-  }
+  },
+  {
+    Name            =   'Little Lake Race',
+    Label           =   'race',
+    SoloRegister    =   'SoloListing_two',
+    MultiRegister   =   'MultiListing_two',
+    StartingBlock   =   {
+      {x=1670.651,y=-33.005,z=172.774},
+      {x=1671.117,y=-40.577,z=172.774},
+      {x=1671.562,y=-48.390,z=172.774},
+      {x=1673.265,y=-57.384,z=172.774},
+    },
+    Checkpoints     =   {
+      {x=1669.83 , y=-26.422 , z=172.775},
+      {x=1653.842, y=47.392  , z=171.418},
+      {x=1829.884, y=174.312 , z=170.723},
+      {x=1909.378, y=503.860 , z=170.668},
+      {x=1988.511, y=955.508 , z=212.055},
+      {x=1897.159, y=1309.823, z=151.001},
+      {x=1578.417, y=961.265 , z=77.261 },
+      {x=1701.498, y=1336.841, z=85.791 },
+      {x=2179.104, y=1247.633, z=75.048 },
+      {x=2271.261, y=1079.827, z=67.503 },
+      {x=2432.844, y=585.725 , z=141.980},
+      {x=2200.69 , y=117.609 , z=227.763},
+      {x=1759.131, y=-92.326 , z=183.679},
+      {x=1669.83 , y=-26.422 , z=172.775},
+    }
+  },
 }
 
 Config.VehicleClass = {

@@ -133,7 +133,6 @@ Citizen.CreateThread(function()
 end)
 -- Draw HelpText
 function drawMissionText(msg)
-  ClearPrints()
   SetTextComponentFormat('STRING')
   AddTextComponentString(msg)
   DisplayHelpTextFromStringLabel(0, 0, 0, -1)
@@ -946,7 +945,7 @@ AddEventHandler('esx_races:stopStartingBlock', function(createdRace)
 end)
 -- Multi Start Race
 RegisterNetEvent('esx_races:startMultiRace')
-AddEventHandler('esx_races:startMultiRace', function(createdRace, checkpointsList, raceName, myPos, nbPers)
+AddEventHandler('esx_races:startMultiRace', function(createdRace, checkpointsList, raceName, myPos, nbPers, nbLaps)
   ESX.ShowNotification(_U('multi_race_start'))
   for i=1, #multi, 1 do
     if multi[i].createdRace == createdRace then
@@ -959,6 +958,8 @@ AddEventHandler('esx_races:startMultiRace', function(createdRace, checkpointsLis
       multi[i].outTimer          = 0
       multi[i].myPos             = myPos
       multi[i].maxPos            = nbPers
+      multi[i].nbLaps            = nbLaps
+      multi[i].currentLap        = 0
       multi[i].isStart           = true
       drawMissionText(_U('ready_to_start'))
       PlaySound(-1, 'RACE_PLACED', 'HUD_AWARDS', 0, 0, 1)
@@ -979,6 +980,7 @@ AddEventHandler('esx_races:startMultiRace', function(createdRace, checkpointsLis
   end
 end)
 Citizen.CreateThread(function()
+  local updated = false
   while true do
     Citizen.Wait(10)
     local currentRace = {}
@@ -1030,6 +1032,11 @@ Citizen.CreateThread(function()
         local outTime = GetGameTimer() - currentRace.outTimer
         if distance <= (Config.CheckpointsData.Size.x * 0.75) then
           if not currentRace.outOfVehicle then
+            if tmpCheckpoint.x == currentRace.checkpoints[1].x and tmpCheckpoint.y == currentRace.checkpoints[1].y and tmpCheckpoint.z == currentRace.checkpoints[1].z then
+              if multi[currentRaceId].currentLap < currentRace.nbLaps then
+                multi[currentRaceId].currentLap = multi[currentRaceId].currentLap + 1
+              end
+            end
             currentRace.currentCheckPoint = nextCheckPoint
             TriggerServerEvent('esx_races:setMultiRacePosition', nextCheckPoint, raceTime, currentRace.createdRace)
             PlaySound(-1, 'RACE_PLACED', 'HUD_AWARDS', 0, 0, 1)
@@ -1041,8 +1048,12 @@ Citizen.CreateThread(function()
         if currentRace.outTimeIsStarted then
           drawMissionText(_U('race_in_vehicle', mytimeToString(Config.CheckpointsData.OutTime - outTime)))
         else
-          if not currentRace.isReady then 
-            drawMissionText(_U('multi_race_chrono', currentRace.raceName, mytimeToString(raceTime), currentRace.myPos, currentRace.maxPos))
+          if not currentRace.isReady then
+            local tmpLap = multi[currentRaceId].currentLap
+            if tmpLap == 0 then
+              tmpLap = 1
+            end
+            drawMissionText(_U('multi_race_chrono', currentRace.raceName, mytimeToString(raceTime), tmpLap, currentRace.nbLaps, currentRace.myPos, currentRace.maxPos))
           end
         end
         -- out of vehicle process
@@ -1067,7 +1078,7 @@ end)
 function endMultiRace(currentRaceId)
   local currentRace = multi[currentRaceId]
   local record = GetGameTimer() - currentRace.raceTimer
-  drawMissionText(_U('multi_race_chrono', currentRace.raceName, mytimeToString(record), currentRace.myPos, currentRace.maxPos))
+  drawMissionText(_U('multi_race_chrono', currentRace.raceName, mytimeToString(record), currentRace.currentLap, currentRace.nbLaps, currentRace.myPos, currentRace.maxPos))
   if DoesBlipExist(currentRace.currentBlip) then
     RemoveBlip(currentRace.currentBlip)
   end
