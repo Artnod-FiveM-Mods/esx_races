@@ -7,6 +7,8 @@ local quitDuringCollectMultiKey  = {}
 local createdMultiRace = {} -- {fxId, zone, owner, race, nbLaps, nbPers, registerOpen, readyToStart, isStart, isEnd, date, id}
 local playerRegisteredMultiRace = {} -- {identifier, race, isReady, isStart, isEnded, checkPoint, raceTime}
 
+local freezedVehicle = {} -- {identifier, vehicle}
+
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 function nbCops()
@@ -140,6 +142,63 @@ function getRacersOrderByBestTime(racersList)
   end
   return poolPosition
 end
+
+
+function checkFreezedVehicle()
+  local players = ESX.GetPlayers()
+  for i=1, #freezedVehicle, 1 do
+    freezedVehicle[i].remove = true
+    for y=1, #players, 1 do
+      local tmpPlayer = ESX.GetPlayerFromId(players[y])
+      if freezedVehicle[i].identifier == tmpPlayer.identifier and not freezedVehicle[i].lockRemove then
+        freezedVehicle[i].remove = false
+        break
+      end
+    end
+    if freezedVehicle[i].remove and not freezedVehicle[i].lockRemove then
+      freezedVehicle[i].lockRemove = true
+    end
+  end
+  for i=1, #freezedVehicle, 1 do
+    if freezedVehicle[i].remove then
+      if #players > 0 then
+        local tmpPlayer = ESX.GetPlayerFromId(players[1])
+        TriggerClientEvent('esx_races:unfreezedVehicle', tmpPlayer.source, freezedVehicle[i].vehicle)
+        freezedVehicle[i] = nil
+        local tmpList = {}
+        for y=1, #freezedVehicle, 1 do
+          if i ~= y then
+            table.insert(tmpList, freezedVehicle[y])
+          end
+        end
+        freezedVehicle = tmpList
+        break
+      end
+    end
+  end
+  SetTimeout(5 * 1000, checkFreezedVehicle)
+end
+checkFreezedVehicle()
+
+RegisterServerEvent('esx_races:freezedVehicle')
+AddEventHandler('esx_races:freezedVehicle', function(vehicle, isFreezed)
+  local xPlayer = ESX.GetPlayerFromId(source)
+  if isFreezed then
+    table.insert(freezedVehicle, {identifier = xPlayer.identifier, vehicle = vehicle, remove = false, lockRemove = false})
+    print('Add freezed vehicle')
+  else
+    local tmpList = {}
+    for i=1, #freezedVehicle, 1 do
+      if freezedVehicle[i].identifier ~= xPlayer.identifier then
+        table.insert(tmpList, freezedVehicle[y])
+      end
+    end
+    freezedVehicle = tmpList
+    print('Remove freezed vehicle')
+  end
+end)
+
+
 
 -- collect solo key
 function collectSoloKey(source)
@@ -1067,11 +1126,11 @@ function getCheckpointsList(fxId)
       else
         local added = false
         for y=1, #checkPointList, 1 do
-          if playerRegisteredMultiRace[i].checkPoint > checkPointList[y].checkPoint then
+          if playerRegisteredMultiRace[i].checkPoint > checkPointList[y] then
             table.insert(checkPointList, y, playerRegisteredMultiRace[i].checkPoint)
             added = true
             break
-          elseif playerRegisteredMultiRace[i].checkPoint == checkPointList[y].checkPoint then
+          elseif playerRegisteredMultiRace[i].checkPoint == checkPointList[y] then
             added = true
             break
           end

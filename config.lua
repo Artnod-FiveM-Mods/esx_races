@@ -40,14 +40,37 @@ Config.Zones = {
   }
 }
 
+Config.AllowCopsToCollect = true
 -- solo params
 Config.RequiredCopsSolo = 0
 Config.TimeToCollectSoloKey = 5 * 1000
-
 -- multi params
 Config.RequiredCopsMulti = 0
 Config.TimeToCollectMultiKey = 5 * 1000
 Config.MaxLaps = 24
+
+Config.VehicleClass = {
+  'compacts',
+  'sedans',
+  'SUV\'s',
+  'coupes',
+  'muscle',
+  'sport classic',
+  'sport',
+  'super',
+  'motorcycle',
+  'offroad',
+  'industrial',
+  'utility',
+  'vans',
+  'bicycles',
+  'boats',
+  'helicopter',
+  'plane',
+  'service',
+  'emergency',
+  'military'
+}
 
 -- race
 Config.Races = {
@@ -132,27 +155,4 @@ Config.Races = {
       {x=1669.83 , y=-26.422 , z=172.775},
     }
   },
-}
-
-Config.VehicleClass = {
-  'compacts',
-  'sedans',
-  'SUV\'s',
-  'coupes',
-  'muscle',
-  'sport classic',
-  'sport',
-  'super',
-  'motorcycle',
-  'offroad',
-  'industrial',
-  'utility',
-  'vans',
-  'bicycles',
-  'boats',
-  'helicopter',
-  'plane',
-  'service',
-  'emergency',
-  'military'
 }

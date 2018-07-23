@@ -75,7 +75,7 @@ Citizen.CreateThread(function()
           drawMarker(coords, vv, Config.ZonesData)
         end
       elseif Config.ZonesData.Enable then
-        if PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance' then
+        if (PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance') or Config.AllowCopsToCollect then
           drawMarker(coords, v, Config.ZonesData)
         end
       end
@@ -113,7 +113,7 @@ Citizen.CreateThread(function()
     Citizen.Wait(1000)
     PlayerData = ESX.GetPlayerData()
   end  
-  if PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance' then
+  if (PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance') or Config.AllowCopsToCollect then
   if Config.ZonesData.EnableBlip then
     for k,v in pairs(Config.Zones) do
       if k == 'RegisterSolo' then
@@ -224,7 +224,7 @@ end)
 AddEventHandler('esx_races:hasEnteredZone', function(zone)
   local PlayerData = ESX.GetPlayerData()
   if zone == 'SoloKey' then
-    if PlayerData.job.name == 'police' or PlayerData.job.name == 'ambulance' then
+    if (PlayerData.job.name == 'police' or PlayerData.job.name == 'ambulance') and not Config.AllowCopsToCollect then
       return
     end
     ESX.UI.Menu.CloseAll()
@@ -232,7 +232,7 @@ AddEventHandler('esx_races:hasEnteredZone', function(zone)
     currentActionMsg  = _U('press_collect_solo')
     currentActionData = {}
   elseif zone == 'MultiKey' then
-    if PlayerData.job.name == 'police' or PlayerData.job.name == 'ambulance' then
+    if (PlayerData.job.name == 'police' or PlayerData.job.name == 'ambulance') and not Config.AllowCopsToCollect then
       return
     end
     ESX.UI.Menu.CloseAll()
@@ -447,6 +447,8 @@ function initRaceToStart()
     PlaySound(-1, 'RACE_PLACED', 'HUD_AWARDS', 0, 0, 1)
     FreezeEntityPosition(playerPed, true)
     FreezeEntityPosition(vehicle, true)
+    -- send freezed vehicle
+    TriggerServerEvent('esx_races:freezedVehicle', vehicle, true)
     Citizen.Wait(2000)
     drawMissionText(_U('race_chrono', Config.Races[solo.registeredRace_Solo].Name, '~r~00\'04~s~', solo.currentCheckPoint, #Config.Races[solo.registeredRace_Solo].Checkpoints))
     Citizen.Wait(1000)
@@ -461,6 +463,8 @@ function initRaceToStart()
     solo.raceTimer = GetGameTimer()
     FreezeEntityPosition(playerPed, false)
     FreezeEntityPosition(vehicle, false)
+    -- send unfreezed vehicle
+    TriggerServerEvent('esx_races:freezedVehicle', vehicle, false)
     PlaySound(-1, 'RACE_PLACED', 'HUD_AWARDS', 0, 0, 1)
   else
     TriggerEvent('esx:showNotification', _U('in_vehicle'))
@@ -922,6 +926,7 @@ function waitToStart(multiId)
     multi[multiId].isReady = true
     multi[multiId].vehicle = vehicle
     FreezeEntityPosition(vehicle, true)
+    TriggerServerEvent('esx_races:freezedVehicle', vehicle, true)
     TriggerEvent('esx:showNotification', _U('multi_wait_to_start'))
     TriggerServerEvent('esx_races:setReadyToStart', multi[multiId].createdRace)
   else
@@ -938,6 +943,7 @@ AddEventHandler('esx_races:stopStartingBlock', function(createdRace)
       drawMissionText(_U('report_to_start'))
       PlaySound(-1, 'RACE_PLACED', 'HUD_AWARDS', 0, 0, 1)
       FreezeEntityPosition(multi[i].vehicle, false)
+      TriggerServerEvent('esx_races:freezedVehicle', multi[i].vehicle, false)
     end
     -- remove starting block etc
     if multi[i].createdRace ~= createdRace then
@@ -1108,3 +1114,14 @@ AddEventHandler('esx_races:getMultiRacePosition', function(myPos, maxPos, create
     end
   end
 end)
+
+
+RegisterNetEvent('esx_races:unfreezedVehicle')
+AddEventHandler('esx_races:unfreezedVehicle', function(vehicle)
+  FreezeEntityPosition(vehicle, false)
+end)
+
+
+
+
+
