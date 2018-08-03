@@ -69,7 +69,8 @@ Config.VehicleClass = {
   'plane',
   'service',
   'emergency',
-  'military'
+  'military',
+  ''
 }
 
 -- race

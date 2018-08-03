@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `record_multi` (
   `vehicle` int(11) NOT NULL,
   `nb_laps` int(11) NOT NULL,
   `multi_race_id` int(11) NOT NULL,
+  `ended` tinyint(1) NOT NULL,
   `record_date` datetime NOT NULL,
   PRIMARY KEY (`id`)
 );

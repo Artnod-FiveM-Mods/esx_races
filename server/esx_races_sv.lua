@@ -478,12 +478,6 @@ end)
 function getRegisterLine(source, zoneName, isRegistered_Solo)
   local xPlayer = ESX.GetPlayerFromId(source)
   
-  -- no multi_key
-  local multikey = xPlayer.getInventoryItem('multi_key').count
-  if multikey == 0 then
-    return {success = false, retour = {}}
-  end
-  
   -- already registered
   local alreadyRegistered = isRegistered_Solo
   for i=1, #playerRegisteredMultiRace , 1 do
@@ -500,6 +494,13 @@ function getRegisterLine(source, zoneName, isRegistered_Solo)
   if alreadyRegistered then
     return {success = false, retour = {}}
   end
+  
+  -- no multi_key
+  local multikey = xPlayer.getInventoryItem('multi_key').count
+  if multikey == 0 then
+    return {success = false, retour = {}}
+  end
+  
   
   -- no opened race in zone
   local openedRace = false
@@ -1223,16 +1224,28 @@ AddEventHandler('esx_races:setMultiRaceEnded', function(record, vehicleClass, fx
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
   if record ~= -1 then
-    local request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, record_date) VALUES ( MD5('" .. 
+    local request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, ended, record_date) VALUES ( MD5('" .. 
       xPlayer.name .. "'), " .. 
       currentRace.race .. ", " .. 
       record .. ", "  .. 
       vehicleClass .. ", " ..  
       currentRace.nbLaps .. ", '" .. 
       currentRace.id .. "', " .. 
+      1 .. ", " .. 
       "NOW() )"
     local response = MySQL.Sync.fetchScalar(request)
     TriggerClientEvent('esx:showNotification', _source, _U('nice_ride', timeToString(record)))
+  else
+    local request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, ended, record_date) VALUES ( MD5('" .. 
+      xPlayer.name .. "'), " .. 
+      currentRace.race .. ", " .. 
+      0 .. ", "  .. 
+      (#Config.VehicleClass - 1) .. ", " ..  
+      currentRace.nbLaps .. ", '" .. 
+      currentRace.id .. "', " .. 
+      1 .. ", " .. 
+      "NOW() )"
+    local response = MySQL.Sync.fetchScalar(request)
   end
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].identifier == xPlayer.identifier and playerRegisteredMultiRace[i].race == fxId then
@@ -1243,7 +1256,7 @@ AddEventHandler('esx_races:setMultiRaceEnded', function(record, vehicleClass, fx
   
   -- retire les participants deco
   removeOfflinePlayer()
-  
+  -- cloture la course si c'est le dernier de la course
   local allIsEnd = true
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race == fxId and not playerRegisteredMultiRace[i].isEnded then
@@ -1257,35 +1270,34 @@ AddEventHandler('esx_races:setMultiRaceEnded', function(record, vehicleClass, fx
 end)
 -- close endend multi race
 function closeRace(fxId)
-  local currentRace = {}
-  for i=1, #createdMultiRace, 1 do
-    if createdMultiRace[i].fxId == fxId then
-      createdMultiRace[i].isEnd = true
-      currentRace = createdMultiRace[i]
-      break
+  local currentRace = getCurrentRace(fxId)
+  -- count playerRegisteredMultiRace
+  local nbPers = 0
+  local nbEnded = 0
+  for i=1, #playerRegisteredMultiRace, 1 do
+    if playerRegisteredMultiRace[i].race == fxId then
+      nbPers = nbPers + 1
+      if playerRegisteredMultiRace[i].race == fxId then
+        nbPers = nbPers + 1
+      end
     end
   end
+  -- update db
+  if nbPers > 0 then
+    local request = "UPDATE multi_race SET ended = 1, nb_pers = " .. nbPers .. " WHERE id = " .. currentRace.id
+    local response = MySQL.Sync.fetchScalar(request)
+  else
+    local request = "DELETE FROM multi_race WHERE id = " .. currentRace.id
+    local response = MySQL.Sync.fetchScalar(request)
+  end
   -- clear playerRegisteredMultiRace
-  local nbPers = 0
   local tmpList = {}  
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race ~= fxId then
       table.insert(tmpList, playerRegisteredMultiRace[i])
-    else
-      nbPers = nbPers + 1
     end
   end
   playerRegisteredMultiRace = tmpList
-  -- update db
-  local request = "SELECT count(*) FROM record_multi WHERE multi_race_id = " .. currentRace.id
-  local response = MySQL.Sync.fetchScalar(request)
-  if response > 0 then
-    request = "UPDATE multi_race SET ended = 1, nb_pers = " .. nbPers .. " WHERE id = " .. currentRace.id
-    response = MySQL.Sync.fetchScalar(request)
-  else
-    request = "DELETE FROM multi_race WHERE id = " .. currentRace.id
-    response = MySQL.Sync.fetchScalar(request)
-  end
   -- clear createdMultiRace
   tmpList = {} 
   for i=1, #createdMultiRace, 1 do
