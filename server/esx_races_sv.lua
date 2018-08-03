@@ -153,8 +153,22 @@ function removeOfflinePlayer()
       playerRegisteredMultiRace[i].isEnded = true
       playerRegisteredMultiRace[i].isFail = true
       -- si la course est commencé 
+      local tmpRace = getCurrentRace(playerRegisteredMultiRace[i].race)
+      if tmpRace.isStart then
         -- insert db
-      tryToCloseRace(currentRace.fxId)
+        local request = "SELECT name FROM users WHERE identifier = '" .. playerRegisteredMultiRace[i].identifier .. "'"
+        local response = MySQL.Sync.fetchScalar(request)
+        request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, ended, record_date) VALUES ( MD5('" .. 
+          response .. "'), " .. 
+          tmpRace.race .. ", " .. 
+          playerRegisteredMultiRace[i].raceTime .. ", "  .. 
+          (#Config.VehicleClass - 1) .. ", " ..  
+          tmpRace.nbLaps .. ", '" .. 
+          tmpRace.id .. "', " .. 
+          0 .. ", " .. 
+          "NOW() )"
+      end
+      tryToCloseRace(tmpRace.fxId)
     end
   end
 end
@@ -985,7 +999,7 @@ AddEventHandler('esx_races:tryToRegisterMulti', function(fxId, isRegistered)
   if success then
     xPlayer.removeInventoryItem('multi_key', 1)
     TriggerClientEvent('esx:showNotification', _source, _U('multi_register_ok'))
-    local newRacer = {identifier = xPlayer.identifier, race = fxId, isReady = false, isStart = false, isEnded = false, checkPoint = 0}
+    local newRacer = {identifier = xPlayer.identifier, race = fxId, isReady = false, isStart = false, isEnded = false, isFail = false, checkPoint = 0, raceTime = 0}
     table.insert(playerRegisteredMultiRace, newRacer)
   end
    
