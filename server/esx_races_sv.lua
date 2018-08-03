@@ -167,6 +167,7 @@ function removeOfflinePlayer()
           tmpRace.id .. "', " .. 
           0 .. ", " .. 
           "NOW() )"
+        response = MySQL.Sync.fetchScalar(request)
       end
       tryToCloseRace(tmpRace.fxId)
     end
