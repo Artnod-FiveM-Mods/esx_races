@@ -5,7 +5,7 @@ local isCollectingMultiKey       = {}
 local quitDuringCollectMultiKey  = {}
 
 local createdMultiRace = {} -- {fxId, zone, owner, race, nbLaps, nbPers, registerOpen, readyToStart, isStart, isEnd, date, id}
-local playerRegisteredMultiRace = {} -- {identifier, race, isReady, isStart, isEnded, checkPoint, raceTime}
+local playerRegisteredMultiRace = {} -- {identifier, race, isReady, isStart, isEnded, isFail, checkPoint, raceTime}
 
 local freezedVehicle = {} -- {identifier, vehicle}
 
@@ -64,6 +64,7 @@ function timeToString(mytime)
   return mytimeString
 end
 
+
 function getCurrentRace(fxId)
   local currentRace = {}
   for i=1, #createdMultiRace, 1 do
@@ -77,28 +78,16 @@ end
 function getRacersFromRace(fxId)
   local racerList = {}
   for i=1, #playerRegisteredMultiRace, 1 do
-    if playerRegisteredMultiRace[i].race == fxId then
+    if playerRegisteredMultiRace[i].race == fxId and not playerRegisteredMultiRace[i].isFail then
       table.insert(racerList, playerRegisteredMultiRace[i])
     end
   end
   return racerList
 end
-function removeOfflinePlayer()
-  local newList = {}
-  local playersList = ESX.GetPlayers()
-  for i=1, #playersList, 1 do
-    local tmpPlayer = ESX.GetPlayerFromId(playersList[i])
-    for x=1, #playerRegisteredMultiRace, 1 do
-      if playerRegisteredMultiRace[x].identifier == tmpPlayer.identifier then
-        table.insert(newList, playerRegisteredMultiRace[x])
-      end
-    end
-  end
-  playerRegisteredMultiRace = newList
-end
+
 function getBestTime(identifier, race)
   local player = ESX.GetPlayerFromIdentifier(identifier)
-  local request = 'SELECT record, nb_laps FROM record_multi WHERE user = MD5(\'' .. player.name .. '\') AND race = ' .. race
+  local request = 'SELECT record, nb_laps FROM record_multi WHERE user = MD5(\'' .. player.name .. '\') AND ended = 1 AND race = ' .. race
   local response = MySQL.Sync.fetchAll(request)
   local bestTime = 'no_record'
   for x=1, #response, 1 do
@@ -141,6 +130,33 @@ function getRacersOrderByBestTime(racersList)
     end
   end
   return poolPosition
+end
+
+function isOffline(identifier)
+  local playersList = ESX.GetPlayers()
+  local isOffLine = true
+  for i=1, #playersList, 1 do
+    local tmpPlayer = ESX.GetPlayerFromId(playersList[i])
+    if identifier == tmpPlayer.identifier then
+      isOffLine = false
+      break
+    end
+  end
+  return isOffLine
+end
+function removeOfflinePlayer()
+  -- pour chaque participants 
+  for i=1, #playerRegisteredMultiRace, 1 do
+    -- si le joueur est deco
+    if isOffline(playerRegisteredMultiRace[i].identifier) then
+      playerRegisteredMultiRace[i].isReady = true
+      playerRegisteredMultiRace[i].isEnded = true
+      playerRegisteredMultiRace[i].isFail = true
+      -- si la course est commencé 
+        -- insert db
+      tryToCloseRace(currentRace.fxId)
+    end
+  end
 end
 
 
@@ -607,7 +623,7 @@ AddEventHandler('esx_races:getMultiOwnRacesList', function(zone)
   local title = _U('multi_rank_own') 
   for i=1, #Config.Races, 1 do
     if Config.Races[i].MultiRegister == zone then
-      local request = "SELECT count(*) FROM record_multi WHERE user = MD5('" .. xPlayer.name .. "') AND race = " .. i
+      local request = "SELECT count(*) FROM record_multi WHERE user = MD5('" .. xPlayer.name .. "') AND ended = 1 AND race = " .. i
       local response = MySQL.Sync.fetchScalar(request)
       table.insert(elements, {label = Config.Races[i].Name, value = 'race', race = i, count = response})
     end
@@ -620,7 +636,7 @@ AddEventHandler('esx_races:getMultiOwnRaceRecords', function(race, zone)
   local xPlayer = ESX.GetPlayerFromId(_source)
   local elements = {}
   local title = _U('multi_rank_own') .. ' - ' .. Config.Races[race].Name
-  local request = "SELECT * FROM record_multi WHERE user = MD5('" .. xPlayer.name .. "') AND race = " .. race .. " ORDER BY record_date ASC"
+  local request = "SELECT * FROM record_multi WHERE user = MD5('" .. xPlayer.name .. "') AND ended = 1 AND race = " .. race .. " ORDER BY record_date ASC"
   local response = MySQL.Sync.fetchAll(request)
   for i=1, #response, 1 do
     local req         = "SELECT nb_pers FROM multi_race WHERE id = " .. response[i].multi_race_id
@@ -686,14 +702,28 @@ AddEventHandler('esx_races:getMultiRaceDetails', function(race, zone)
   local req = "SELECT * FROM record_multi WHERE multi_race_id = " .. race .. " ORDER BY record ASC"
   local resp = MySQL.Sync.fetchAll(req)
   for i=1, #resp, 1 do
-    local record      = timeToString(resp[i].record)
-    local average     = timeToString(math.floor(resp[i].record/resp[i].nb_laps))
-    local racer       = compressString(resp[i].user)
-    local record_date = os.date('%Y-%m-%d', math.floor(resp[i].record_date/1000))
-    local record_time = os.date('%H:%M:%S', math.floor(resp[i].record_date/1000))
-    local label       = _U('multi_rank_multi_race', i, record, Config.VehicleClass[resp[i].vehicle+1])
-    local notif = {record, average, racer, record_date, record_time}
-    table.insert(elements, {label = label, value = i, notif = notif})
+    if resp[i].ended then
+      local record      = timeToString(resp[i].record)
+      local average     = timeToString(math.floor(resp[i].record/resp[i].nb_laps))
+      local racer       = compressString(resp[i].user)
+      local record_date = os.date('%Y-%m-%d', math.floor(resp[i].record_date/1000))
+      local record_time = os.date('%H:%M:%S', math.floor(resp[i].record_date/1000))
+      local label       = _U('multi_rank_multi_race', i, record, Config.VehicleClass[resp[i].vehicle+1])
+      local notif = {record, average, racer, record_date, record_time}
+      table.insert(elements, {label = label, value = i, notif = notif})
+    end
+  end
+  for i=#resp, 1, 1 do
+    if not resp[i].ended then
+      local record      = 'disqualified'
+      local average     = 'disqualified'
+      local racer       = compressString(resp[i].user)
+      local record_date = os.date('%Y-%m-%d', math.floor(resp[i].record_date/1000))
+      local record_time = os.date('%H:%M:%S', math.floor(resp[i].record_date/1000))
+      local label       = _U('multi_rank_multi_race', i, 'disqualified', 'disqualified')
+      local notif = {record, average, racer, record_date, record_time}
+      table.insert(elements, {label = label, value = i, notif = notif})
+    end
   end
   -- retourne les data
   TriggerClientEvent('esx_races:recordsListMultiMenu', source, elements, title, zone, response[1].race)
@@ -1033,6 +1063,8 @@ function reportStart(fxId)
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race == fxId then
       playerRegisteredMultiRace[i].isReady = false
+      playerRegisteredMultiRace[i].isEnded = false
+      playerRegisteredMultiRace[i].isFail = false
       local player = ESX.GetPlayerFromIdentifier(playerRegisteredMultiRace[i].identifier)
       TriggerClientEvent('esx_races:stopStartingBlock', player.source, fxId)
     end
@@ -1043,13 +1075,14 @@ RegisterServerEvent('esx_races:setReadyToStart')
 AddEventHandler('esx_races:setReadyToStart', function(fxId)
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
+  
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race == fxId and playerRegisteredMultiRace[i].identifier == xPlayer.identifier then
       playerRegisteredMultiRace[i].isReady = true
+      break
     end
   end
-  -- retire les participants deco
-  removeOfflinePlayer()
+    
   local allIsReady = true
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race == fxId and not playerRegisteredMultiRace[i].isReady then
@@ -1092,9 +1125,11 @@ function startRace(fxId)
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race == fxId then
       tmpcount = tmpcount + 1
-      playerRegisteredMultiRace[i].isStart = true
-      local player = ESX.GetPlayerFromIdentifier(playerRegisteredMultiRace[i].identifier)
-      TriggerClientEvent('esx_races:startMultiRace', player.source, fxId, newCkecpointsList, Config.Races[currentRace.race].Name, tmpcount, nbPers, currentRace.nbLaps)
+      if not playerRegisteredMultiRace[i].isFail then
+        playerRegisteredMultiRace[i].isStart = true
+        local player = ESX.GetPlayerFromIdentifier(playerRegisteredMultiRace[i].identifier)
+        TriggerClientEvent('esx_races:startMultiRace', player.source, fxId, newCkecpointsList, Config.Races[currentRace.race].Name, tmpcount, nbPers, currentRace.nbLaps)
+      end
     end
   end
   -- ajout race in db
@@ -1213,8 +1248,10 @@ AddEventHandler('esx_races:setMultiRacePosition', function(checkPoint, raceTime,
   -- envoie position a tout les participants
   local racersList = getRacersFromRace(fxId)
   for i=1, #newList, 1 do
-    local racer = ESX.GetPlayerFromIdentifier(newList[i].identifier)
-    TriggerClientEvent('esx_races:getMultiRacePosition', racer.source, i, #racersList, fxId)
+    if not newList[i].isEnded then
+      local racer = ESX.GetPlayerFromIdentifier(newList[i].identifier)
+      TriggerClientEvent('esx_races:getMultiRacePosition', racer.source, i, #racersList, fxId)
+    end
   end
 end)
 -- save multi race
@@ -1223,39 +1260,53 @@ AddEventHandler('esx_races:setMultiRaceEnded', function(record, vehicleClass, fx
   local currentRace = getCurrentRace(fxId)
   local _source = source
   local xPlayer = ESX.GetPlayerFromId(_source)
-  if record ~= -1 then
-    local request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, ended, record_date) VALUES ( MD5('" .. 
-      xPlayer.name .. "'), " .. 
-      currentRace.race .. ", " .. 
-      record .. ", "  .. 
-      vehicleClass .. ", " ..  
-      currentRace.nbLaps .. ", '" .. 
-      currentRace.id .. "', " .. 
-      1 .. ", " .. 
-      "NOW() )"
-    local response = MySQL.Sync.fetchScalar(request)
-    TriggerClientEvent('esx:showNotification', _source, _U('nice_ride', timeToString(record)))
-  else
-    local request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, ended, record_date) VALUES ( MD5('" .. 
-      xPlayer.name .. "'), " .. 
-      currentRace.race .. ", " .. 
-      0 .. ", "  .. 
-      (#Config.VehicleClass - 1) .. ", " ..  
-      currentRace.nbLaps .. ", '" .. 
-      currentRace.id .. "', " .. 
-      1 .. ", " .. 
-      "NOW() )"
-    local response = MySQL.Sync.fetchScalar(request)
-  end
+  local request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, ended, record_date) VALUES ( MD5('" .. 
+    xPlayer.name .. "'), " .. 
+    currentRace.race .. ", " .. 
+    record .. ", "  .. 
+    vehicleClass .. ", " ..  
+    currentRace.nbLaps .. ", '" .. 
+    currentRace.id .. "', " .. 
+    1 .. ", " .. 
+    "NOW() )"
+  local response = MySQL.Sync.fetchScalar(request)
+  TriggerClientEvent('esx:showNotification', _source, _U('nice_ride', timeToString(record)))
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].identifier == xPlayer.identifier and playerRegisteredMultiRace[i].race == fxId then
         playerRegisteredMultiRace[i].isEnded = true
         break
     end
   end
-  
-  -- retire les participants deco
   removeOfflinePlayer()
+  tryToCloseRace(fxId)
+end)
+RegisterServerEvent('esx_races:setMultiRaceFailed')
+AddEventHandler('esx_races:setMultiRaceFailed', function(record, fxId)
+  local currentRace = getCurrentRace(fxId)
+  local _source = source
+  local xPlayer = ESX.GetPlayerFromId(_source)
+  local request = "INSERT INTO record_multi (user, race, record, vehicle, nb_laps, multi_race_id, ended, record_date) VALUES ( MD5('" .. 
+    xPlayer.name .. "'), " .. 
+    currentRace.race .. ", " .. 
+    record .. ", "  .. 
+    (#Config.VehicleClass - 1) .. ", " ..  
+    currentRace.nbLaps .. ", '" .. 
+    currentRace.id .. "', " .. 
+    0 .. ", " .. 
+    "NOW() )"
+  local response = MySQL.Sync.fetchScalar(request)
+  for i=1, #playerRegisteredMultiRace, 1 do
+    if playerRegisteredMultiRace[i].identifier == xPlayer.identifier and playerRegisteredMultiRace[i].race == fxId then
+        playerRegisteredMultiRace[i].isEnded = true
+        playerRegisteredMultiRace[i].isFail = true
+        break
+    end
+  end
+  removeOfflinePlayer()
+  tryToCloseRace(fxId)
+end)
+-- close endend multi race
+function tryToCloseRace(fxId)
   -- cloture la course si c'est le dernier de la course
   local allIsEnd = true
   for i=1, #playerRegisteredMultiRace, 1 do
@@ -1267,8 +1318,7 @@ AddEventHandler('esx_races:setMultiRaceEnded', function(record, vehicleClass, fx
   if allIsEnd then
     closeRace(fxId)
   end
-end)
--- close endend multi race
+end
 function closeRace(fxId)
   local currentRace = getCurrentRace(fxId)
   -- count playerRegisteredMultiRace
@@ -1277,9 +1327,6 @@ function closeRace(fxId)
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].race == fxId then
       nbPers = nbPers + 1
-      if playerRegisteredMultiRace[i].race == fxId then
-        nbPers = nbPers + 1
-      end
     end
   end
   -- update db

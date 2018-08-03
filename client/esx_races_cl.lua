@@ -1096,12 +1096,13 @@ function endMultiRace(currentRaceId)
 end
 function looseMultiRace(currentRaceId)
   local currentRace = multi[currentRaceId]
+  local record = GetGameTimer() - currentRace.raceTimer
   drawMissionText(_U('race_loose'))
   if DoesBlipExist(currentRace.currentBlip) then
     RemoveBlip(currentRace.currentBlip)
   end
   multi[currentRaceId] = nil
-  TriggerServerEvent('esx_races:setMultiRaceEnded', -1, 0, currentRace.createdRace)
+  TriggerServerEvent('esx_races:setMultiRaceFailed', record, currentRace.createdRace)
 end
 -- Multi Race Position
 RegisterNetEvent('esx_races:getMultiRacePosition')
