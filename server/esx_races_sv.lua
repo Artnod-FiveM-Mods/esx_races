@@ -291,7 +291,7 @@ AddEventHandler('esx_races:getSoloRaceDetails', function(raceid, isRegistered_So
   local request = "SELECT count(*) FROM solo_race WHERE user = MD5('" .. xPlayer.name .. "') AND race = " .. raceid
   local response = MySQL.Sync.fetchScalar(request)
   table.insert(elements, {label = _U('own_stat'), value = 'own', race = raceid, count = response})
-  request = "SELECT * FROM solo_race WHERE user = MD5('" .. xPlayer.name .. "') AND race = " .. raceid
+  request = "SELECT * FROM solo_race WHERE race = " .. raceid
   response = MySQL.Sync.fetchAll(request)
   local nbDaily = 0
   for i=1, #response, 1 do
