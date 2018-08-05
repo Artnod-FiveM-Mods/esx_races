@@ -50,7 +50,7 @@ Locales['fr'] = {
   ['multi_ready_to_start']  = 'Préparez vous au ~r~départ~s~',
   ['multi_wait_to_start']   = 'Attendez tous les participants.',
   ['multi_race_start']      = 'Atention au ~r~départ~s~',
-  ['multi_race_chrono']     = '~b~%s~s~\rTemps: ~y~%s~s~\rTour: ~y~%s/%s~s~\rPos: ~y~%s/%s~s~',
+  ['multi_race_chrono']     = '~b~%s~s~\rTemps: ~y~%s~s~\t\rTour: ~y~%s/%s~s~\rPos: ~y~%s/%s~s~',
   -- Menu home
   ['multi_home_title']      = 'Course de rue',
   ['ended_races']           = 'Classements',
