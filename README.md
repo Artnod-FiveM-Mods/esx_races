@@ -1,5 +1,5 @@
 [![GitHub license](https://img.shields.io/github/license/Artnod-FiveM-Mods/esx_races.svg)](https://github.com/Artnod-FiveM-Mods/esx_races/blob/master/LICENSE) :small_blue_diamond: 
-[![Discord](https://img.shields.io/discord/436197783863558164.svg)](https://discord.gg/u7dj7Ja)  
+[![Discord](https://img.shields.io/discord/436197783331012629.svg)](https://discord.gg/u7dj7Ja)  
 
 # esx_races
 This is a Grand Theft Auto V mod that implements Singleplayer street races and Multiplayer street races, with ranking.  
