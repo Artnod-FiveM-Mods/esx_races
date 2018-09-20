@@ -1,5 +1,5 @@
 INSERT INTO `items` (name, label, `limit`) VALUES
-	('solo_key', 'Cle conte la montre', 1)
+	('solo_key', 'Cle conte la montre', 10)
 ;
 
 CREATE TABLE IF NOT EXISTS `solo_race` (
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `solo_race` (
 
 
 INSERT INTO `items` (name, label, `limit`) VALUES
-	('multi_key', 'Cle course de rue', 1)
+	('multi_key', 'Cle course de rue', 10)
 ;
 
 CREATE TABLE IF NOT EXISTS `multi_race` (

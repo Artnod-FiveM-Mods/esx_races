@@ -31,12 +31,16 @@ Config.Zones = {
   SoloKey       =   {x = 231.430, y = -1360.403, z = 27.651, name = _U('solo_key'),    sprite = 315, color = 2},
   MultiKey      =   {x = 199.859, y = -1382.469, z = 29.613, name = _U('multi_key'),    sprite = 315, color = 1},
   RegisterSolo  =   {
+    SoloListing_one  =   {x = 256.353, y = -1390.096, z = 29.555,  name = _U('solo_listing'),   sprite = 315, color = 2},
     SoloListing_two  =   {x = 1662.883, y = -25.811, z = 172.775,  name = _U('solo_listing'),   sprite = 315, color = 2},
-    SoloListing_one  =   {x = 256.353, y = -1390.096, z = 29.555,  name = _U('solo_listing'),   sprite = 315, color = 2}
+    SoloListing_three=   {x = 126.062, y = -870.863, z = 30.123,  name = _U('solo_listing'),   sprite = 315, color = 2},
+    SoloListing_four =   {x = -191.998, y = 1858.789, z = 196.808,  name = _U('solo_listing'),   sprite = 315, color = 2},
   },
   RegisterMulti =   {
-    MultiListing_two  =   {x = 1662.727, y = -53.788, z = 167.329,  name = _U('multi_listing'),   sprite = 315, color = 1},
-    MultiListing_one  =   {x = 216.088, y = -1389.518, z = 29.587,  name = _U('multi_listing'),   sprite = 315, color = 1}
+    MultiListing_one  =   {x = 216.088 , y = -1389.518, z = 29.587,  name = _U('multi_listing'),   sprite = 315, color = 1},
+    MultiListing_two  =   {x = 1662.727, y = -53.788  , z = 167.329,  name = _U('multi_listing'),   sprite = 315, color = 1},
+    MultiListing_three=   {x = 121.888 , y = -864.174 , z = 30.123,  name = _U('multi_listing'),   sprite = 315, color = 1},
+    MultiListing_four =   {x = -201.185, y = 1853.182 , z = 196.780,  name = _U('multi_listing'),   sprite = 315, color = 1},
   }
 }
 
@@ -154,6 +158,54 @@ Config.Races = {
       {x=2200.69 , y=117.609 , z=227.763},
       {x=1759.131, y=-92.326 , z=183.679},
       {x=1669.83 , y=-26.422 , z=172.775},
+    }
+  },
+  {
+    Name            =   'Cubes Park Race',
+    Label           =   'race',
+    SoloRegister    =   'SoloListing_three',
+    MultiRegister   =   'MultiListing_three',
+    StartingBlock   =   {
+      {x=142.100 , y=-917.853, z=29.134},
+      {x=146.781 , y=-919.538, z=29.070},
+      {x=139.493 , y=-924.787 , z=30.049},
+      {x=144.174 , y=-926.472 , z=29.985},
+      {x=136.886 , y=-931.721 , z=30.964},
+      {x=141.567 , y=-933.406 , z=30.9},
+    },
+    Checkpoints     =   {
+      {x=148.481, y=-907.434 , z=29.275},
+      {x=164.882, y=-862.260 , z=29.850},
+      {x=223.404, y=-845.187 , z=29.298},
+      {x=263.236, y=-902.330 , z=28.007},
+      {x=234.266, y=-981.945 , z=28.320},
+      {x=154.822, y=-1014.136, z=28.395},
+      {x=134.592, y=-945.898 , z=28.784},
+      {x=148.481, y=-907.434 , z=29.275},
+    }
+  },
+  {
+    Name            =   'Dirty Race',
+    Label           =   'race',
+    SoloRegister    =   'SoloListing_four',
+    MultiRegister   =   'MultiListing_four',
+    StartingBlock   =   {
+      {x=-197.371 , y=1862.528, z=196.865},
+      {x=-200.368 , y=1867.48 , z=196.863},
+      {x=-203.8793, y=1858.682, z=196.867},
+      {x=-206.8763, y=1863.634, z=196.865},
+      {x=-210.3876, y=1854.836, z=196.869},
+      {x=-213.3846, y=1859.788, z=196.867},
+    },
+    Checkpoints     =   {
+      {x=-168.925, y=1883.309 , z=197.223},
+      {x=-201.474, y=1907.723 , z=194.029},
+      {x=-253.262, y=2133.469 , z=132.155},
+      {x=-231.356, y=2592.907 , z=61.479},
+      {x=-559.525, y=2639.544 , z=44.762},
+      {x=-732.536, y=2288.143, z=73.787},
+      {x=-622.990, y=1991.52 , z=163.999},
+      {x=-168.925, y=1883.309 , z=197.223},
     }
   },
 }

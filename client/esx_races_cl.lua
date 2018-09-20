@@ -1123,6 +1123,13 @@ AddEventHandler('esx_races:unfreezedVehicle', function(vehicle)
 end)
 
 
-
+Citizen.CreateThread(function()
+  while true do
+    Citizen.Wait(5000)
+    local playerPed = GetPlayerPed(-1)
+    local coords = GetEntityCoords(playerPed)
+    print(coords)
+  end
+end)
 
 
