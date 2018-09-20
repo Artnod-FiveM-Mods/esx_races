@@ -1121,15 +1121,3 @@ RegisterNetEvent('esx_races:unfreezedVehicle')
 AddEventHandler('esx_races:unfreezedVehicle', function(vehicle)
   FreezeEntityPosition(vehicle, false)
 end)
-
-
-Citizen.CreateThread(function()
-  while true do
-    Citizen.Wait(5000)
-    local playerPed = GetPlayerPed(-1)
-    local coords = GetEntityCoords(playerPed)
-    print(coords)
-  end
-end)
-
-
