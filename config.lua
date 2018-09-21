@@ -28,8 +28,8 @@ Config.CheckpointsData = {
   OutTime = 15 * 1000
 }
 Config.Zones = {
-  SoloKey       =   {x = 231.430, y = -1360.403, z = 27.651, name = _U('solo_key'),    sprite = 315, color = 2},
-  MultiKey      =   {x = 199.859, y = -1382.469, z = 29.613, name = _U('multi_key'),    sprite = 315, color = 1},
+  SoloKey       =   {x = 192.197, y = -919.572, z = 29.692, name = _U('solo_key'),    sprite = 315, color = 2},
+  MultiKey      =   {x = 179.261, y = -910.860, z = 29.692, name = _U('multi_key'),    sprite = 315, color = 1},
   RegisterSolo  =   {
     SoloListing_one  =   {x = 256.353, y = -1390.096, z = 29.555,  name = _U('solo_listing'),   sprite = 315, color = 2},
     SoloListing_two  =   {x = 1662.883, y = -25.811, z = 172.775,  name = _U('solo_listing'),   sprite = 315, color = 2},
