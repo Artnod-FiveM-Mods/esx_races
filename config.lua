@@ -47,10 +47,10 @@ Config.Zones = {
 Config.AllowCopsToCollect = true
 -- solo params
 Config.RequiredCopsSolo = 0
-Config.TimeToCollectSoloKey = 5 * 1000
+Config.TimeToCollectSoloKey = 1 * 1000
 -- multi params
 Config.RequiredCopsMulti = 0
-Config.TimeToCollectMultiKey = 5 * 1000
+Config.TimeToCollectMultiKey = 1 * 1000
 Config.MaxLaps = 24
 
 Config.VehicleClass = {
