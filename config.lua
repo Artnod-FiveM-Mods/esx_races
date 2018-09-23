@@ -21,26 +21,28 @@ Config.CheckpointsData = {
   Enable = true,
   EnableBlip = true,
   Type = 6,
-  DrawDistance = 250.0,
-  Size     = {x = 8.0, y = 8.0, z = 10.0},
+  DrawDistance = 500.0,
+  Size     = {x = 10.0, y = 10.0, z = 12.0},
   Color  = {r = 0, g = 200, b = 0},
   BlipColor = 69,
   OutTime = 15 * 1000
 }
 Config.Zones = {
-  SoloKey       =   {x = 192.197, y = -919.572, z = 29.692, name = _U('solo_key'),    sprite = 315, color = 2},
-  MultiKey      =   {x = 179.261, y = -910.860, z = 29.692, name = _U('multi_key'),    sprite = 315, color = 1},
+  SoloKey       =   {x = 192.197, y = -919.572, z = 29.692, name = _U('solo_key'),  sprite = 315, color = 2},
+  MultiKey      =   {x = 179.261, y = -910.860, z = 29.692, name = _U('multi_key'), sprite = 315, color = 1},
   RegisterSolo  =   {
-    SoloListing_one  =   {x = 256.353, y = -1390.096, z = 29.555,  name = _U('solo_listing'),   sprite = 315, color = 2},
-    SoloListing_two  =   {x = 1662.883, y = -25.811, z = 172.775,  name = _U('solo_listing'),   sprite = 315, color = 2},
-    SoloListing_three=   {x = 126.062, y = -870.863, z = 30.123,  name = _U('solo_listing'),   sprite = 315, color = 2},
-    SoloListing_four =   {x = -191.998, y = 1858.789, z = 196.808,  name = _U('solo_listing'),   sprite = 315, color = 2},
+    SoloListing_one  =   {x = 256.353, y = -1390.096, z = 29.555,  name = _U('solo_listing'), sprite = 315, color = 2},
+    SoloListing_two  =   {x = 1662.883, y = -25.811, z = 172.775,  name = _U('solo_listing'), sprite = 315, color = 2},
+    SoloListing_three=   {x = 126.062, y = -870.863, z = 30.123,   name = _U('solo_listing'), sprite = 315, color = 2},
+    SoloListing_four =   {x = -191.998, y = 1858.789, z = 196.808, name = _U('solo_listing'), sprite = 315, color = 2},
+    SoloListing_five =   {x = 1093.270, y = 197.616, z = 79.990,   name = _U('solo_listing'), sprite = 315, color = 2},
   },
   RegisterMulti =   {
-    MultiListing_one  =   {x = 216.088 , y = -1389.518, z = 29.587,  name = _U('multi_listing'),   sprite = 315, color = 1},
-    MultiListing_two  =   {x = 1662.727, y = -53.788  , z = 167.329,  name = _U('multi_listing'),   sprite = 315, color = 1},
-    MultiListing_three=   {x = 121.888 , y = -864.174 , z = 30.123,  name = _U('multi_listing'),   sprite = 315, color = 1},
-    MultiListing_four =   {x = -201.185, y = 1853.182 , z = 196.780,  name = _U('multi_listing'),   sprite = 315, color = 1},
+    MultiListing_one  =   {x = 216.088 , y = -1389.518, z = 29.587,  name = _U('multi_listing'), sprite = 315, color = 1},
+    MultiListing_two  =   {x = 1662.727, y = -53.788  , z = 167.329, name = _U('multi_listing'), sprite = 315, color = 1},
+    MultiListing_three=   {x = 121.888 , y = -864.174 , z = 30.123,  name = _U('multi_listing'), sprite = 315, color = 1},
+    MultiListing_four =   {x = -201.185, y = 1853.182 , z = 196.780, name = _U('multi_listing'), sprite = 315, color = 1},
+    MultiListing_five =   {x = 1091.045, y = 194.218, z = 79.990,    name = _U('multi_listing'), sprite = 315, color = 1},
   }
 }
 
@@ -53,29 +55,7 @@ Config.RequiredCopsMulti = 0
 Config.TimeToCollectMultiKey = 1 * 1000
 Config.MaxLaps = 24
 
-Config.VehicleClass = {
-  'compacts',
-  'sedans',
-  'SUV\'s',
-  'coupes',
-  'muscle',
-  'sport classic',
-  'sport',
-  'super',
-  'motorcycle',
-  'offroad',
-  'industrial',
-  'utility',
-  'vans',
-  'bicycles',
-  'boats',
-  'helicopter',
-  'plane',
-  'service',
-  'emergency',
-  'military',
-  ''
-}
+Config.VehicleClass = {'compacts', 'sedans', 'SUV\'s', 'coupes', 'muscle', 'sport classic', 'sport', 'super', 'motorcycle', 'offroad', 'industrial', 'utility', 'vans', 'bicycles', 'boats', 'helicopter', 'plane', 'service', 'emergency', 'military', ''}
 
 -- race
 Config.Races = {
@@ -85,12 +65,9 @@ Config.Races = {
 		SoloRegister    =		'SoloListing_one',
     MultiRegister   =   'MultiListing_one',
     StartingBlock   =   {
-      {x = 230.564, y = -1391.092, z = 29.500},
-      {x = 229.257, y = -1393.385, z = 29.500},
-      {x = 235.405, y = -1394.969, z = 29.500},
-      {x = 224.416, y = -1389.508, z = 29.500},
-      {x = 240.246, y = -1398.846, z = 29.500},
-      {x = 229.257, y = -1393.385, z = 29.500},
+      {x = 230.564, y = -1391.092, z = 29.500}, {x = 229.257, y = -1393.385, z = 29.500},
+      {x = 235.405, y = -1394.969, z = 29.500}, {x = 224.416, y = -1389.508, z = 29.500},
+      {x = 240.246, y = -1398.846, z = 29.500}, {x = 229.257, y = -1393.385, z = 29.500},
     },
 		Checkpoints     =		{
       {x = 255.139, y = -1400.731, z = 29.537},	
@@ -111,27 +88,6 @@ Config.Races = {
       {x = 255.139, y = -1400.731, z = 29.537}
 		}
 	},
-	{
-    Name            =   'Simple Race',
-    Label           =   'race',
-    SoloRegister    =   'SoloListing_one',
-    MultiRegister   =   'MultiListing_one',
-    StartingBlock   =   {
-      {x = 230.564, y = -1391.092, z = 29.500},
-      {x = 229.257, y = -1393.385, z = 29.500},
-      {x = 235.405, y = -1394.969, z = 29.500},
-      {x = 224.416, y = -1389.508, z = 29.500},
-      {x = 240.246, y = -1398.846, z = 29.500},
-      {x = 229.257, y = -1393.385, z = 29.500},
-    },
-    Checkpoints     =   {
-      {x = 255.139, y = -1400.731, z = 29.537}, 
-      {x = 271.874, y = -1370.574, z = 30.932},
-      {x = 234.907, y = -1345.385, z = 29.542},
-      {x = 229.257, y = -1393.385, z = 29.500},
-      {x = 255.139, y = -1400.731, z = 29.537}
-    }
-  },
   {
     Name            =   'Little Lake Race',
     Label           =   'race',
@@ -166,12 +122,9 @@ Config.Races = {
     SoloRegister    =   'SoloListing_three',
     MultiRegister   =   'MultiListing_three',
     StartingBlock   =   {
-      {x=142.100 , y=-917.853, z=29.134},
-      {x=146.781 , y=-919.538, z=29.070},
-      {x=139.493 , y=-924.787 , z=30.049},
-      {x=144.174 , y=-926.472 , z=29.985},
-      {x=136.886 , y=-931.721 , z=30.964},
-      {x=141.567 , y=-933.406 , z=30.9},
+      {x=142.100 , y=-917.853, z=29.134}, {x=146.781 , y=-919.538, z=29.070},
+      {x=139.493 , y=-924.787 , z=30.049}, {x=144.174 , y=-926.472 , z=29.985},
+      {x=136.886 , y=-931.721 , z=30.964}, {x=141.567 , y=-933.406 , z=30.9},
     },
     Checkpoints     =   {
       {x=148.481, y=-907.434 , z=29.275},
@@ -190,22 +143,35 @@ Config.Races = {
     SoloRegister    =   'SoloListing_four',
     MultiRegister   =   'MultiListing_four',
     StartingBlock   =   {
-      {x=-197.371 , y=1862.528, z=196.865},
-      {x=-200.368 , y=1867.48 , z=196.863},
-      {x=-203.8793, y=1858.682, z=196.867},
-      {x=-206.8763, y=1863.634, z=196.865},
-      {x=-210.3876, y=1854.836, z=196.869},
-      {x=-213.3846, y=1859.788, z=196.867},
+      {x=-197.371 , y=1862.528, z=196.865}, {x=-200.368 , y=1867.48 , z=196.863},
+      {x=-203.8793, y=1858.682, z=196.867}, {x=-206.8763, y=1863.634, z=196.865},
+      {x=-210.3876, y=1854.836, z=196.869}, {x=-213.3846, y=1859.788, z=196.867},
     },
     Checkpoints     =   {
       {x=-168.925, y=1883.309 , z=197.223},
       {x=-201.474, y=1907.723 , z=194.029},
+      {x=-279.963, y=1949.338 , z=162.067},
       {x=-253.262, y=2133.469 , z=132.155},
       {x=-231.356, y=2592.907 , z=61.479},
+      {x=-324.427, y=2717.28 , z=67.456},
       {x=-559.525, y=2639.544 , z=44.762},
       {x=-732.536, y=2288.143, z=73.787},
       {x=-622.990, y=1991.52 , z=163.999},
       {x=-168.925, y=1883.309 , z=197.223},
+    }
+  },
+  {
+    Name            =   'Circle Race',
+    Label           =   'race',
+    SoloRegister    =   'SoloListing_five',
+    MultiRegister   =   'MultiListing_five',
+    StartingBlock   =   {
+      {x=1116.208 , y=183.889 , z=81.146}, {x=1109.819 , y=187.924 , z=81.168},
+    },
+    Checkpoints     =   {
+      {x=1095.6445 , y=159.8285 , z=81.092},
+      {x=1198.452 , y=80.747 , z=80.847},
+      {x=1095.6445 , y=159.8285 , z=81.092},
     }
   },
 }

@@ -1071,7 +1071,8 @@ function readyToStart(fxId)
   for i=1, #poolPosition, 1 do
     local player = ESX.GetPlayerFromIdentifier(poolPosition[i].identifier)
     local playerStartingBlock = Config.Races[currentRace.race].StartingBlock[i]
-    TriggerClientEvent('esx_races:initStartingBlock', player.source, playerStartingBlock, fxId)
+    local firstCheckpoints = Config.Races[currentRace.race].Checkpoints[i]
+    TriggerClientEvent('esx_races:initStartingBlock', player.source, playerStartingBlock, fxId, firstCheckpoints)
   end
 end
 function reportStart(fxId)

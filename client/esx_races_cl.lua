@@ -83,11 +83,13 @@ Citizen.CreateThread(function()
     -- solo starting block
     if solo.isRegistered_Solo and not solo.isReadyToStartRace and Config.StartZoneData.Enable then
       drawMarker(coords, Config.Races[solo.registeredRace_Solo].StartingBlock[1], Config.StartZoneData)
+      drawMarker(coords, Config.Races[solo.registeredRace_Solo].Checkpoints[1], Config.CheckpointsData)
     end    
     -- multi starting block
     for i=1, #multi, 1 do
       if multi[i].initStartingBlock and not multi[i].isStart and Config.StartZoneData.Enable then
         drawMarker(coords, multi[i].startingBlock, Config.StartZoneData)
+        drawMarker(coords,  multi[i].firstCheckpoint, Config.CheckpointsData)
       end
     end      
   end
@@ -908,12 +910,13 @@ AddEventHandler('esx_races:openSelectRaceMenu', function(elements, title, create
 end)
 -- Multi Starting Block
 RegisterNetEvent('esx_races:initStartingBlock')
-AddEventHandler('esx_races:initStartingBlock', function(startingBlock, createdRace)
+AddEventHandler('esx_races:initStartingBlock', function(startingBlock, createdRace, firstCheckpoint)
   ESX.ShowNotification(_U('multi_ready_to_start'))
   table.insert(multi, {
     initStartingBlock = true, 
     startingBlock = startingBlock, 
     createdRace = createdRace,
+    firstCheckpoint = firstCheckpoint,
     isReady = false,
     isStart = false,
     vehicle = nil
