@@ -323,6 +323,7 @@ AddEventHandler('esx_races:tryToRegisterSolo', function(isRegistered, raceid)
   local solokey = xPlayer.getInventoryItem('solo_key').count
   local copsConnected = nbCops()
   
+  local multiExist = false
   local success = false
   local newSoloKey = solokey
   
@@ -332,8 +333,20 @@ AddEventHandler('esx_races:tryToRegisterSolo', function(isRegistered, raceid)
       break
     end
   end
+  print(raceid .. ' - ' .. #createdMultiRace)
+  
+  for i=1, #createdMultiRace, 1 do
+    print(i)
+    if createdMultiRace[i].race == raceid then
+      print(raceid .. ' - ' .. i)
+      multiExist = true
+    end
+  end
+  
   if isRegistered then
     TriggerClientEvent('esx:showNotification', _source, _U('already_register'))
+  elseif multiExist then
+    TriggerClientEvent('esx:showNotification', _source, _U('already_multi'))
   elseif copsConnected < Config.RequiredCopsSolo then
     TriggerClientEvent('esx:showNotification', _source, _U('act_imp_police', copsConnected, Config.RequiredCopsSolo))
   elseif solokey < 1 then
@@ -783,6 +796,7 @@ AddEventHandler('esx_races:getCreateRace', function(zoneName)
         date = nil, 
         id = nil
       }
+      print('New race: ' .. i)
       TriggerClientEvent('esx:showNotification', _source, _U('create_in_prog'))
       xPlayer.removeInventoryItem('multi_key', 1)
       table.insert(createdMultiRace, newRace)

@@ -10,6 +10,7 @@ Locales['fr'] = {
 	['press_solo_race_list']= 'Appuyez sur ~INPUT_CONTEXT~ pour accéder aux ~y~circuits~s~',
   ['register_ok']         = 'Inscription ~y~effectuée~s~\rAllez au point de ~r~départ~s~',
   ['already_register']    = 'Inscription ~r~déjà~s~ éffectuée\rAllez au point de ~r~départ~s~',
+  ['already_multi']       = 'Une course de rue est ~r~déjà~s~ en cours',
   ['no_solo_key']         = 'Vous n\'avez pas de clé ~r~contre-la-montre~s~',
   -- race
   ['ready_to_start']      = 'Atention au ~r~départ~s~',
