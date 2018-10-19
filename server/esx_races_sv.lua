@@ -166,7 +166,7 @@ function removeOfflinePlayer()
           tmpRace.nbLaps .. ", '" .. 
           tmpRace.id .. "', " .. 
           0 .. ", " .. 
-          "NOW() )"
+          tostring(os.time()) .. " )"
         response = MySQL.Sync.fetchScalar(request)
       end
       tryToCloseRace(tmpRace.fxId)
@@ -216,7 +216,6 @@ AddEventHandler('esx_races:freezedVehicle', function(vehicle, isFreezed)
   local xPlayer = ESX.GetPlayerFromId(source)
   if isFreezed then
     table.insert(freezedVehicle, {identifier = xPlayer.identifier, vehicle = vehicle, remove = false, lockRemove = false})
-    print('Add freezed vehicle')
   else
     local tmpList = {}
     for i=1, #freezedVehicle, 1 do
@@ -225,7 +224,6 @@ AddEventHandler('esx_races:freezedVehicle', function(vehicle, isFreezed)
       end
     end
     freezedVehicle = tmpList
-    print('Remove freezed vehicle')
   end
 end)
 
@@ -295,14 +293,14 @@ AddEventHandler('esx_races:getSoloRaceDetails', function(raceid, isRegistered_So
   response = MySQL.Sync.fetchAll(request)
   local nbDaily = 0
   for i=1, #response, 1 do
-    if (os.time() - math.floor(response[i].record_date/1000)) < 86400 then
+    if (os.time() - response[i].record_date) < 86400 then
       nbDaily = nbDaily + 1
     end
   end
   table.insert(elements, {label = _U('daily_stat'), value = 'daily', race = raceid, count = nbDaily})
   local nbMonthly = 0
   for i=1, #response, 1 do
-    if (os.time() - math.floor(response[i].record_date/1000)) < (86400*30) then
+    if (os.time() - response[i].record_date) < (86400*30) then
       nbMonthly = nbMonthly + 1
     end
   end
@@ -333,12 +331,9 @@ AddEventHandler('esx_races:tryToRegisterSolo', function(isRegistered, raceid)
       break
     end
   end
-  print(raceid .. ' - ' .. #createdMultiRace)
   
   for i=1, #createdMultiRace, 1 do
-    print(i)
     if createdMultiRace[i].race == raceid then
-      print(raceid .. ' - ' .. i)
       multiExist = true
     end
   end
@@ -379,7 +374,7 @@ AddEventHandler('esx_races:getOwnRecord', function(raceid)
         local record_time = timeToString(response[i].record)
         local tmpLabel = i .. ' - ' .. record_time .. ' - ' .. Config.VehicleClass[response[i].vehicle + 1]
         local tmpValue = i
-        local tmpNotif = {record_time, racer_id, os.date('%Y/%m/%d', math.floor(response[i].record_date/1000)), os.date('%H:%M:%S', math.floor(response[i].record_date/1000))}
+        local tmpNotif = {record_time, racer_id, os.date('%Y/%m/%d', response[i].record_date), os.date('%H:%M:%S', response[i].record_date)}
         table.insert(elements, {label = tmpLabel, value = tmpValue, notif = tmpNotif})
       end
     end
@@ -397,19 +392,19 @@ AddEventHandler('esx_races:getDailyRecord', function(raceid)
   local title = _U('daily_title', Config.Races[raceid].Name)
   local elements = {}
   for i=1, #response, 1 do
-    if (os.time() - math.floor(response[i].record_date/1000)) < 86400 then
+    if (os.time() - response[i].record_date) < 86400 then
       nbLine = nbLine + 1
     end
   end
   if nbLine > 0 then
     for i=1, #response, 1 do
-      if (os.time() - math.floor(response[i].record_date/1000)) < 86400 then
+      if (os.time() - response[i].record_date) < 86400 then
         if nbDaily < 6 then
           local racer_id = compressString(response[i].user)
           local record_time = timeToString(response[i].record)
           local tmpValue = nbDaily + 1
           local tmpLabel = tmpValue .. ' - ' .. record_time .. ' - ' .. Config.VehicleClass[response[i].vehicle + 1]
-          local tmpNotif = {record_time, racer_id, os.date('%Y/%m/%d', math.floor(response[i].record_date/1000)), os.date('%H:%M:%S', math.floor(response[i].record_date/1000))}
+          local tmpNotif = {record_time, racer_id, os.date('%Y/%m/%d', response[i].record_date), os.date('%H:%M:%S', response[i].record_date)}
           table.insert(elements, {label = tmpLabel, value = tmpValue, notif = tmpNotif})
           nbDaily = nbDaily + 1
         end
@@ -429,19 +424,19 @@ AddEventHandler('esx_races:getMonthlyRecord', function(raceid)
   local title = _U('monthly_title', Config.Races[raceid].Name)
   local elements = {}
   for i=1, #response, 1 do
-    if (os.time() - math.floor(response[i].record_date/1000)) < (86400 * 30) then
+    if (os.time() - response[i].record_date) < (86400 * 30) then
       nbLine = nbLine + 1
     end
   end
   if nbLine > 0 then
     for i=1, #response, 1 do
-      if (os.time() - math.floor(response[i].record_date/1000)) < (86400 * 30) then
+      if (os.time() - response[i].record_date) < (86400 * 30) then
         if nbMonthly < 6 then
           local racer_id = compressString(response[i].user)
           local record_time = timeToString(response[i].record)
           local tmpValue = nbMonthly + 1
           local tmpLabel = tmpValue .. ' - ' .. record_time .. ' - ' .. Config.VehicleClass[response[i].vehicle + 1]
-          local tmpNotif = {record_time, racer_id, os.date('%Y/%m/%d', math.floor(response[i].record_date/1000)), os.date('%H:%M:%S', math.floor(response[i].record_date/1000))}
+          local tmpNotif = {record_time, racer_id, os.date('%Y/%m/%d', response[i].record_date), os.date('%H:%M:%S', response[i].record_date)}
           table.insert(elements, {label = tmpLabel, value = tmpValue, notif = tmpNotif})
           nbMonthly = nbMonthly + 1
         end
@@ -463,7 +458,7 @@ AddEventHandler('esx_races:saveRace', function(record, raceid, vehicleClass)
     TriggerClientEvent('esx:showNotification', _source, _U('nice_ride', timeToString(record)))
   end
   
-  request = "INSERT INTO solo_race (user, record, race, vehicle, record_date) VALUES (MD5('" .. xPlayer.name .. "'), " .. tostring(record) .. ", " .. tostring(raceid) .. ", "  .. tostring(vehicleClass) .. ", NOW())"
+  request = "INSERT INTO solo_race (user, record, race, vehicle, record_date) VALUES (MD5('" .. xPlayer.name .. "'), " .. tostring(record) .. ", " .. tostring(raceid) .. ", "  .. tostring(vehicleClass) .. ", " .. tostring(os.time()) .. ")"
   response = MySQL.Sync.fetchScalar(request)
 end)
 
@@ -673,8 +668,8 @@ AddEventHandler('esx_races:getMultiOwnRaceRecords', function(race, zone)
     local avr         = math.floor(response[i].record/response[i].nb_laps)
     local average     = timeToString(avr)
     local racer       = compressString(response[i].user)
-    local record_date = os.date('%Y-%m-%d', math.floor(response[i].record_date/1000))
-    local record_time = os.date('%H:%M:%S', math.floor(response[i].record_date/1000))
+    local record_date = os.date('%Y-%m-%d', response[i].record_date)
+    local record_time = os.date('%H:%M:%S', response[i].record_date)
     local label       = _U('multi_rank_own_race', '', response[i].nb_laps, nbPers, record, Config.VehicleClass[response[i].vehicle+1])
     local notif       = {record, average, racer, record_date, record_time}
     table.insert(elements, {label = label, value = i, notif = notif, avr = avr})
@@ -796,7 +791,6 @@ AddEventHandler('esx_races:getCreateRace', function(zoneName)
         date = nil, 
         id = nil
       }
-      print('New race: ' .. i)
       TriggerClientEvent('esx:showNotification', _source, _U('create_in_prog'))
       xPlayer.removeInventoryItem('multi_key', 1)
       table.insert(createdMultiRace, newRace)
@@ -832,9 +826,7 @@ function manageRaceData(source, fxId)
   TriggerClientEvent('esx_races:openManageRaceMenu', source, elements, title, currentRace.zone)
 end
 RegisterServerEvent('esx_races:getManageRace')
-AddEventHandler('esx_races:getManageRace', function(fxId)
-  manageRaceData(source, fxId)
-end)
+AddEventHandler('esx_races:getManageRace', function(fxId) manageRaceData(source, fxId) end)
 -- edit created race - return Manage Race Menu
 RegisterServerEvent('esx_races:getRacesList')
 AddEventHandler('esx_races:getRacesList', function(fxId)
@@ -1163,7 +1155,7 @@ function startRace(fxId)
     end
   end
   -- ajout race in db
-  currentRace.date = os.date('%Y-%m-%d %H:%M:%S', os.time())
+  currentRace.date = os.time()
   local request = "INSERT INTO multi_race (owner, race, nb_laps, nb_pers, ended, created_date) VALUES ('" .. 
     currentRace.owner .. "', " .. 
     currentRace.race .. ", " .. 
@@ -1298,7 +1290,7 @@ AddEventHandler('esx_races:setMultiRaceEnded', function(record, vehicleClass, fx
     currentRace.nbLaps .. ", '" .. 
     currentRace.id .. "', " .. 
     1 .. ", " .. 
-    "NOW() )"
+    tostring(os.time()) .. " )"
   local response = MySQL.Sync.fetchScalar(request)
   TriggerClientEvent('esx:showNotification', _source, _U('nice_ride', timeToString(record)))
   for i=1, #playerRegisteredMultiRace, 1 do
@@ -1323,7 +1315,7 @@ AddEventHandler('esx_races:setMultiRaceFailed', function(record, fxId)
     currentRace.nbLaps .. ", '" .. 
     currentRace.id .. "', " .. 
     0 .. ", " .. 
-    "NOW() )"
+    tostring(os.time()) .. " )"
   local response = MySQL.Sync.fetchScalar(request)
   for i=1, #playerRegisteredMultiRace, 1 do
     if playerRegisteredMultiRace[i].identifier == xPlayer.identifier and playerRegisteredMultiRace[i].race == fxId then

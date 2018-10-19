@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `solo_race` (
   `record` int(11) NOT NULL,
   `race` int(11) NOT NULL,
   `vehicle` int(11) NOT NULL,
-  `record_date` datetime NOT NULL,
+  `record_date` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `multi_race` (
   `nb_laps` int(11) NOT NULL,
   `nb_pers` int(11) NOT NULL,
   `ended` tinyint(1) NOT NULL,
-  `created_date` datetime NOT NULL,
+  `created_date` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -37,6 +37,6 @@ CREATE TABLE IF NOT EXISTS `record_multi` (
   `nb_laps` int(11) NOT NULL,
   `multi_race_id` int(11) NOT NULL,
   `ended` tinyint(1) NOT NULL,
-  `record_date` datetime NOT NULL,
+  `record_date` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 );
