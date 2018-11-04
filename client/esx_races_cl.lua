@@ -1127,7 +1127,7 @@ end)
 
 
 Citizen.CreateThread(function()
-  while true do
+  while false do
     Citizen.Wait(5000)
     local playerPed = GetPlayerPed(-1)
     local coords = GetEntityCoords(playerPed)
